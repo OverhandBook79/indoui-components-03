@@ -3,8 +3,9 @@ import { cn } from '@/lib/utils';
 
 export interface SegmentedControlProps {
   options: { value: string; label: string; icon?: React.ReactNode; disabled?: boolean }[];
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   className?: string;
@@ -19,17 +20,28 @@ const sizeStyles: Record<string, { container: string; item: string }> = {
 export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   options,
   value,
+  defaultValue,
   onChange,
   size = 'md',
   fullWidth = false,
   className,
 }) => {
+  const [internalValue, setInternalValue] = React.useState(defaultValue || options[0]?.value || '');
   const sizeStyle = sizeStyles[size];
+  
+  const currentValue = value !== undefined ? value : internalValue;
+
+  const handleChange = (newValue: string) => {
+    if (value === undefined) {
+      setInternalValue(newValue);
+    }
+    onChange?.(newValue);
+  };
 
   return (
     <div
       className={cn(
-        'inline-flex bg-muted rounded-lg',
+        'inline-flex bg-muted rounded-lg p-1',
         sizeStyle.container,
         fullWidth && 'w-full',
         className
@@ -37,22 +49,23 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
       role="tablist"
     >
       {options.map((option) => {
-        const isSelected = value === option.value;
+        const isSelected = currentValue === option.value;
         
         return (
           <button
             key={option.value}
             role="tab"
+            type="button"
             aria-selected={isSelected}
             disabled={option.disabled}
-            onClick={() => onChange(option.value)}
+            onClick={() => handleChange(option.value)}
             className={cn(
               'flex items-center justify-center gap-2 rounded-md font-medium transition-all',
               sizeStyle.item,
               fullWidth && 'flex-1',
               isSelected
                 ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/50',
               option.disabled && 'opacity-50 cursor-not-allowed'
             )}
           >

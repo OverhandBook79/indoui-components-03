@@ -11,7 +11,8 @@ import {
   ColorPicker, DatePicker, Drawer, DrawerHeader, DrawerBody, DrawerFooter, TextEditor, FileTree,
   QRCode, SyntaxHighlighter, Spinner, EmptyState, PasswordInput, SegmentedControl, IconButton,
   Pagination, Timeline, Carousel, Image, List, ListItem, Breadcrumb, Steps, Clipboard, ClipboardButton,
-  Mark, Highlight, Blockquote, Prose, Center, Wrap
+  Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter,
+  useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
 import type { FileNode } from '@/indoui';
 import { colorPalette, ColorScheme } from '@/indoui/theme/tokens';
@@ -100,6 +101,15 @@ const sidebarItems = [
     ],
   },
   {
+    category: 'Hooks',
+    items: [
+      { id: 'usecolormode', label: 'useColorMode' },
+      { id: 'usecolormodevalue', label: 'useColorModeValue' },
+      { id: 'usebreakpointvalue', label: 'useBreakpointValue' },
+      { id: 'usethemetoken', label: 'useThemeToken' },
+    ],
+  },
+  {
     category: 'Layout',
     items: [
       { id: 'box', label: 'Box' },
@@ -109,6 +119,7 @@ const sidebarItems = [
       { id: 'container', label: 'Container' },
       { id: 'divider', label: 'Divider' },
       { id: 'center', label: 'Center & Wrap' },
+      { id: 'splitter', label: 'Splitter' },
     ],
   },
   {
@@ -361,6 +372,251 @@ const ColorSchemeDocs = () => {
   );
 };
 
+// ============= HOOKS =============
+
+const UseColorModeDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>useColorMode</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Hook to manage and toggle between light and dark color modes.</Text>
+    
+    <ComponentCard
+      title="Basic Usage"
+      description="Get and toggle color mode"
+      code={`import { useColorMode } from '@indokudev/indoui'
+
+function MyComponent() {
+  const { colorMode, toggleColorMode, setColorMode } = useColorMode();
+  
+  return (
+    <div>
+      <p>Current mode: {colorMode}</p>
+      <button onClick={toggleColorMode}>Toggle</button>
+      <button onClick={() => setColorMode('dark')}>Set Dark</button>
+    </div>
+  );
+}`}
+    >
+      <VStack gap={4} align="start">
+        <Text>Current mode: <Code>{useColorMode().colorMode}</Code></Text>
+        <HStack gap={2}>
+          <Button size="sm" onClick={useColorMode().toggleColorMode}>Toggle Mode</Button>
+          <ColorModeSwitch />
+        </HStack>
+      </VStack>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Return Values"
+      description="What the hook returns"
+      code={`const { 
+  colorMode,      // 'light' | 'dark'
+  toggleColorMode, // () => void
+  setColorMode,   // (mode: 'light' | 'dark') => void
+  setTheme,       // (theme: string) => void
+} = useColorMode();`}
+    >
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr><Th>Property</Th><Th>Type</Th><Th>Description</Th></Tr>
+        </Thead>
+        <Tbody>
+          <Tr><Td><Code>colorMode</Code></Td><Td>'light' | 'dark'</Td><Td>Current color mode</Td></Tr>
+          <Tr><Td><Code>toggleColorMode</Code></Td><Td>() =&gt; void</Td><Td>Toggle between modes</Td></Tr>
+          <Tr><Td><Code>setColorMode</Code></Td><Td>(mode) =&gt; void</Td><Td>Set specific mode</Td></Tr>
+        </Tbody>
+      </Table>
+    </ComponentCard>
+  </div>
+);
+
+const UseColorModeValueDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>useColorModeValue</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Returns different values based on the current color mode. Supports color token resolution.</Text>
+    
+    <ComponentCard
+      title="Basic Usage"
+      description="Use different values for light/dark mode"
+      code={`import { useColorModeValue } from '@indokudev/indoui'
+
+function MyComponent() {
+  const bg = useColorModeValue('white', 'gray.900');
+  const color = useColorModeValue('gray.800', 'gray.100');
+  
+  return (
+    <div style={{ background: bg, color }}>
+      Content that adapts to color mode
+    </div>
+  );
+}`}
+    >
+      <Box className="p-4 rounded-lg border border-border">
+        <Text>This box uses <Code>useColorModeValue</Code> for adaptive colors</Text>
+      </Box>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="With Color Tokens"
+      description="Supports color tokens like 'red.500'"
+      code={`// Supports color tokens!
+const color = useColorModeValue('blue.500', 'blue.300');
+const bg = useColorModeValue('gray.100', 'gray.800');
+
+// Also works with any values
+const padding = useColorModeValue(4, 6);`}
+    >
+      <Text>Color tokens like <Code>"red.500"</Code> are automatically resolved to their RGB values.</Text>
+    </ComponentCard>
+  </div>
+);
+
+const UseBreakpointValueDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>useBreakpointValue</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Returns values based on the current viewport breakpoint. Great for responsive designs.</Text>
+    
+    <ComponentCard
+      title="Basic Usage"
+      description="Different values for different screen sizes"
+      code={`import { useBreakpointValue } from '@indokudev/indoui'
+
+function MyComponent() {
+  const columns = useBreakpointValue({ 
+    base: 1, 
+    sm: 2, 
+    md: 3, 
+    lg: 4 
+  });
+  
+  const padding = useBreakpointValue({ base: 2, md: 4, lg: 8 });
+  
+  return <Grid columns={columns} p={padding}>...</Grid>;
+}`}
+    >
+      <Text>Resize the window to see values change based on breakpoint.</Text>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Available Breakpoints"
+      description="Default breakpoint values"
+      code={`// Breakpoints
+base: 0px
+sm: 640px  
+md: 768px
+lg: 1024px
+xl: 1280px
+2xl: 1536px`}
+    >
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr><Th>Breakpoint</Th><Th>Min Width</Th></Tr>
+        </Thead>
+        <Tbody>
+          <Tr><Td><Code>base</Code></Td><Td>0px</Td></Tr>
+          <Tr><Td><Code>sm</Code></Td><Td>640px</Td></Tr>
+          <Tr><Td><Code>md</Code></Td><Td>768px</Td></Tr>
+          <Tr><Td><Code>lg</Code></Td><Td>1024px</Td></Tr>
+          <Tr><Td><Code>xl</Code></Td><Td>1280px</Td></Tr>
+          <Tr><Td><Code>2xl</Code></Td><Td>1536px</Td></Tr>
+        </Tbody>
+      </Table>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Related Hooks"
+      description="Other breakpoint utilities"
+      code={`import { 
+  useBreakpoint, 
+  useBreakpointUp, 
+  useBreakpointDown 
+} from '@indokudev/indoui'
+
+const current = useBreakpoint(); // 'base' | 'sm' | 'md' | ...
+const isDesktop = useBreakpointUp('lg'); // true if >= lg
+const isMobile = useBreakpointDown('sm'); // true if <= sm`}
+    >
+      <VStack gap={2} align="start">
+        <Text><Code>useBreakpoint()</Code> - Returns current breakpoint key</Text>
+        <Text><Code>useBreakpointUp(bp)</Code> - True if at least the specified size</Text>
+        <Text><Code>useBreakpointDown(bp)</Code> - True if at most the specified size</Text>
+      </VStack>
+    </ComponentCard>
+  </div>
+);
+
+const UseThemeTokenDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>useThemeToken</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Access theme tokens directly in your components. Get colors, sizes, spacing, and more.</Text>
+    
+    <ComponentCard
+      title="Basic Usage"
+      description="Access theme values programmatically"
+      code={`import { useThemeToken } from '@indokudev/indoui'
+
+function MyComponent() {
+  const { 
+    getColor, 
+    getSize, 
+    getSpacing, 
+    getRadius, 
+    getFontSize,
+    getShadow 
+  } = useThemeToken();
+  
+  const primaryColor = getColor('blue', 500);
+  const mediumSize = getSize('md');
+  
+  return <div style={{ color: primaryColor }}>...</div>;
+}`}
+    >
+      <Text>Access any theme token value for custom styling.</Text>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Available Methods"
+      description="All methods from useThemeToken"
+      code={`const {
+  getColor,      // (scheme, shade) => rgb color
+  resolveToken,  // (token) => resolved value
+  getSize,       // (size) => size value
+  getSpacing,    // (space) => spacing value
+  getRadius,     // (radius) => border-radius
+  getFontSize,   // (size) => font-size
+  getShadow,     // (shadow) => box-shadow
+  
+  // Direct access to token objects
+  colors,
+  sizes,
+  spacing,
+  radii,
+  fontSizes,
+  shadows,
+} = useThemeToken();`}
+    >
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr><Th>Method</Th><Th>Example</Th><Th>Returns</Th></Tr>
+        </Thead>
+        <Tbody>
+          <Tr><Td><Code>getColor</Code></Td><Td>getColor('red', 500)</Td><Td>'rgb(239 68 68)'</Td></Tr>
+          <Tr><Td><Code>resolveToken</Code></Td><Td>resolveToken('blue.500')</Td><Td>'rgb(59 130 246)'</Td></Tr>
+          <Tr><Td><Code>getSize</Code></Td><Td>getSize('md')</Td><Td>'1rem'</Td></Tr>
+          <Tr><Td><Code>getSpacing</Code></Td><Td>getSpacing(4)</Td><Td>'1rem'</Td></Tr>
+        </Tbody>
+      </Table>
+    </ComponentCard>
+  </div>
+);
+
 // ============= LAYOUT =============
 
 const BoxDocs = () => (
@@ -576,6 +832,71 @@ const CenterDocs = () => (
           <Badge key={item} colorScheme="blue">{item}</Badge>
         ))}
       </Wrap>
+    </ComponentCard>
+  </div>
+);
+
+const SplitterDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">Splitter</Heading>
+    <Text className="text-muted-foreground mb-8">Resizable split pane component. Drag the divider to resize panels.</Text>
+    
+    <ComponentCard
+      title="Horizontal Splitter"
+      description="Drag the divider to resize left and right panels"
+      code={`<Splitter h="200px" w="100%">
+  <div className="p-4 bg-primary/10">Left Panel</div>
+  <div className="p-4 bg-purple-500/10">Right Panel</div>
+</Splitter>`}
+    >
+      <Splitter h="200px" w="100%" className="border border-border rounded-lg overflow-hidden">
+        <div className="p-4 bg-primary/10 h-full">
+          <Text fontWeight="semibold">Left Panel</Text>
+          <Text size="sm" className="text-muted-foreground">Drag the divider to resize</Text>
+        </div>
+        <div className="p-4 bg-purple-500/10 h-full">
+          <Text fontWeight="semibold">Right Panel</Text>
+          <Text size="sm" className="text-muted-foreground">This panel resizes too</Text>
+        </div>
+      </Splitter>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Vertical Splitter"
+      description="Top and bottom panels"
+      code={`<Splitter orientation="vertical" h="300px">
+  <div className="p-4">Top Panel</div>
+  <div className="p-4">Bottom Panel</div>
+</Splitter>`}
+    >
+      <Splitter orientation="vertical" h="300px" w="100%" className="border border-border rounded-lg overflow-hidden">
+        <div className="p-4 bg-blue-500/10 w-full">
+          <Text fontWeight="semibold">Top Panel</Text>
+          <Text size="sm" className="text-muted-foreground">Drag vertically to resize</Text>
+        </div>
+        <div className="p-4 bg-green-500/10 w-full">
+          <Text fontWeight="semibold">Bottom Panel</Text>
+          <Text size="sm" className="text-muted-foreground">Adjusts with top panel</Text>
+        </div>
+      </Splitter>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Custom Default Sizes"
+      description="Set initial panel sizes"
+      code={`<Splitter defaultSizes={[30, 70]} minSize={20}>
+  <div>30% Panel</div>
+  <div>70% Panel</div>
+</Splitter>`}
+    >
+      <Splitter defaultSizes={[30, 70]} minSize={15} h="150px" w="100%" className="border border-border rounded-lg overflow-hidden">
+        <div className="p-4 bg-orange-500/10 h-full">
+          <Text size="sm">30% default</Text>
+        </div>
+        <div className="p-4 bg-teal-500/10 h-full">
+          <Text size="sm">70% default</Text>
+        </div>
+      </Splitter>
     </ComponentCard>
   </div>
 );
@@ -1088,35 +1409,90 @@ const DatePickerDocs = () => (
   </div>
 );
 
-const SegmentedControlDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">Segmented Control</Heading>
-    <Text className="text-muted-foreground mb-8">Button group for switching between options. Great for view toggles.</Text>
-    
-    <ComponentCard
-      title="Basic Segmented Control"
-      description="Toggle between options"
-      code={`<SegmentedControl
+const SegmentedControlDocs = () => {
+  const [view, setView] = useState('list');
+  const [size, setSize] = useState('md');
+  
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">Segmented Control</Heading>
+      <Text className="text-muted-foreground mb-8">Button group for switching between options. Great for view toggles.</Text>
+      
+      <ComponentCard
+        title="Interactive Segmented Control"
+        description="Click to toggle between options"
+        code={`const [view, setView] = useState('list');
+
+<SegmentedControl
   options={[
     { value: 'list', label: 'List' },
     { value: 'grid', label: 'Grid' },
     { value: 'table', label: 'Table' },
   ]}
-  defaultValue="list"
+  value={view}
+  onChange={setView}
 />`}
-    >
-      <SegmentedControl
-        options={[
-          { value: 'list', label: 'List' },
-          { value: 'grid', label: 'Grid' },
-          { value: 'table', label: 'Table' },
-        ]}
-        value="list"
-        onChange={() => {}}
-      />
-    </ComponentCard>
-  </div>
-);
+      >
+        <VStack gap={4} align="start">
+          <SegmentedControl
+            options={[
+              { value: 'list', label: 'List' },
+              { value: 'grid', label: 'Grid' },
+              { value: 'table', label: 'Table' },
+            ]}
+            value={view}
+            onChange={setView}
+          />
+          <Text size="sm" className="text-muted-foreground">Selected: <Code>{view}</Code></Text>
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Sizes"
+        description="Small, medium, and large sizes"
+        code={`<SegmentedControl size="sm" ... />
+<SegmentedControl size="md" ... />
+<SegmentedControl size="lg" ... />`}
+      >
+        <VStack gap={4} align="start">
+          <SegmentedControl
+            size="sm"
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            defaultValue="a"
+          />
+          <SegmentedControl
+            size="md"
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            defaultValue="a"
+          />
+          <SegmentedControl
+            size="lg"
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            defaultValue="a"
+          />
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Full Width"
+        description="Expand to fill container"
+        code={`<SegmentedControl fullWidth ... />`}
+      >
+        <div className="w-full max-w-md">
+          <SegmentedControl
+            fullWidth
+            options={[
+              { value: 'day', label: 'Day' },
+              { value: 'week', label: 'Week' },
+              { value: 'month', label: 'Month' },
+            ]}
+            defaultValue="week"
+          />
+        </div>
+      </ComponentCard>
+    </div>
+  );
+};
 
 // ============= DATA DISPLAY =============
 
@@ -2175,6 +2551,10 @@ const componentDocs: Record<string, React.FC> = {
   installation: InstallationDocs,
   theming: ThemingDocs,
   colorscheme: ColorSchemeDocs,
+  usecolormode: UseColorModeDocs,
+  usecolormodevalue: UseColorModeValueDocs,
+  usebreakpointvalue: UseBreakpointValueDocs,
+  usethemetoken: UseThemeTokenDocs,
   box: BoxDocs,
   flex: FlexDocs,
   stack: StackDocs,
@@ -2182,6 +2562,7 @@ const componentDocs: Record<string, React.FC> = {
   container: ContainerDocs,
   divider: DividerDocs,
   center: CenterDocs,
+  splitter: SplitterDocs,
   heading: HeadingDocs,
   text: TextDocs,
   prose: ProseDocs,

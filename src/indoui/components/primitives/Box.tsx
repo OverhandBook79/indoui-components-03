@@ -31,6 +31,17 @@ export interface BoxProps extends React.HTMLAttributes<HTMLDivElement> {
   display?: string;
   position?: 'relative' | 'absolute' | 'fixed' | 'sticky';
   overflow?: 'hidden' | 'auto' | 'scroll' | 'visible';
+  // Chakra-like shorthand props
+  justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
+  align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch';
+  alignSelf?: 'start' | 'end' | 'center' | 'baseline' | 'stretch';
+  justifySelf?: 'start' | 'end' | 'center' | 'stretch';
+  flexDir?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  flexWrap?: 'wrap' | 'nowrap' | 'wrap-reverse';
+  flex?: string | number;
+  flexGrow?: number;
+  flexShrink?: number;
+  gap?: number | string;
 }
 
 const getSpacingClass = (prefix: string, value?: string | number): string => {
@@ -46,6 +57,7 @@ export const Box = React.forwardRef<HTMLDivElement, BoxProps>(
       p, px, py, pt, pb, pl, pr,
       m, mx, my, mt, mb, ml, mr,
       bg, color, borderRadius, display, position, overflow,
+      justify, align, alignSelf, justifySelf, flexDir, flexWrap, flex, flexGrow, flexShrink, gap,
       ...rest
     } = props;
 
@@ -76,6 +88,39 @@ export const Box = React.forwardRef<HTMLDivElement, BoxProps>(
       display && display,
       position,
       overflow && `overflow-${overflow}`,
+      // Flex properties
+      justify === 'start' && 'justify-start',
+      justify === 'end' && 'justify-end',
+      justify === 'center' && 'justify-center',
+      justify === 'between' && 'justify-between',
+      justify === 'around' && 'justify-around',
+      justify === 'evenly' && 'justify-evenly',
+      align === 'start' && 'items-start',
+      align === 'end' && 'items-end',
+      align === 'center' && 'items-center',
+      align === 'baseline' && 'items-baseline',
+      align === 'stretch' && 'items-stretch',
+      alignSelf === 'start' && 'self-start',
+      alignSelf === 'end' && 'self-end',
+      alignSelf === 'center' && 'self-center',
+      alignSelf === 'baseline' && 'self-baseline',
+      alignSelf === 'stretch' && 'self-stretch',
+      justifySelf === 'start' && 'justify-self-start',
+      justifySelf === 'end' && 'justify-self-end',
+      justifySelf === 'center' && 'justify-self-center',
+      justifySelf === 'stretch' && 'justify-self-stretch',
+      flexDir === 'row' && 'flex-row',
+      flexDir === 'column' && 'flex-col',
+      flexDir === 'row-reverse' && 'flex-row-reverse',
+      flexDir === 'column-reverse' && 'flex-col-reverse',
+      flexWrap === 'wrap' && 'flex-wrap',
+      flexWrap === 'nowrap' && 'flex-nowrap',
+      flexWrap === 'wrap-reverse' && 'flex-wrap-reverse',
+      typeof flex === 'number' && `flex-[${flex}]`,
+      typeof flex === 'string' && `flex-[${flex}]`,
+      flexGrow !== undefined && `grow-[${flexGrow}]`,
+      flexShrink !== undefined && `shrink-[${flexShrink}]`,
+      gap && (typeof gap === 'number' ? `gap-${gap}` : `gap-[${gap}]`),
       className
     );
 

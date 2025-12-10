@@ -143,79 +143,87 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-[9999] mt-2 p-3 bg-popover border border-border rounded-xl shadow-2xl w-72 backdrop-blur-sm">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3">
-            <button
-              type="button"
-              onClick={handlePrevMonth}
-              className="p-1 hover:bg-muted rounded"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="font-medium">
-              {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
-            </span>
-            <button
-              type="button"
-              onClick={handleNextMonth}
-              className="p-1 hover:bg-muted rounded"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Days of week */}
-          <div className="grid grid-cols-7 gap-1 mb-1">
-            {DAYS.map((day) => (
-              <div
-                key={day}
-                className="text-xs font-medium text-muted-foreground text-center py-1"
+        <>
+          {/* Backdrop overlay */}
+          <div 
+            className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-[2px]"
+            onClick={() => setIsOpen(false)}
+          />
+          {/* Calendar popup */}
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] p-4 bg-popover border border-border rounded-xl shadow-2xl w-80 animate-in fade-in-0 zoom-in-95">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
-                {day}
-              </div>
-            ))}
-          </div>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="font-semibold text-foreground">
+                {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
+              </span>
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
 
-          {/* Days grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {days.map((day, index) => {
-              if (!day) {
-                return <div key={`empty-${index}`} />;
-              }
-
-              const isSelected = selectedDate && isSameDay(day, selectedDate);
-              const disabled = isDateDisabled(day);
-
-              return (
-                <button
-                  key={day.getTime()}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => handleDateSelect(day)}
-                  className={cn(
-                    'h-8 w-8 text-sm rounded-md transition-colors',
-                    'hover:bg-accent hover:text-accent-foreground',
-                    isSelected && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                    isToday(day) && !isSelected && 'border border-primary',
-                    disabled && 'opacity-30 cursor-not-allowed hover:bg-transparent'
-                  )}
+            {/* Days of week */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {DAYS.map((day) => (
+                <div
+                  key={day}
+                  className="text-xs font-medium text-muted-foreground text-center py-2"
                 >
-                  {day.getDate()}
-                </button>
-              );
-            })}
-          </div>
+                  {day}
+                </div>
+              ))}
+            </div>
 
-          {/* Today button */}
-          <button
-            type="button"
-            onClick={() => handleDateSelect(new Date())}
-            className="w-full mt-3 py-1.5 text-sm text-primary hover:bg-primary/10 rounded-md transition-colors"
-          >
-            Today
-          </button>
-        </div>
+            {/* Days grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {days.map((day, index) => {
+                if (!day) {
+                  return <div key={`empty-${index}`} />;
+                }
+
+                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                const disabled = isDateDisabled(day);
+
+                return (
+                  <button
+                    key={day.getTime()}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => handleDateSelect(day)}
+                    className={cn(
+                      'h-9 w-9 text-sm rounded-lg transition-all font-medium',
+                      'hover:bg-accent hover:text-accent-foreground',
+                      isSelected && 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md',
+                      isToday(day) && !isSelected && 'border-2 border-primary text-primary',
+                      disabled && 'opacity-30 cursor-not-allowed hover:bg-transparent'
+                    )}
+                  >
+                    {day.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Today button */}
+            <button
+              type="button"
+              onClick={() => handleDateSelect(new Date())}
+              className="w-full mt-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors border border-primary/20"
+            >
+              Today
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
