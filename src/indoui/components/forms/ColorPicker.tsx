@@ -83,51 +83,58 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       />
 
       {isOpen && (
-        <div className="absolute z-[9999] mt-2 p-3 bg-popover border border-border rounded-xl shadow-2xl backdrop-blur-sm">
-          {/* Native color input */}
-          <input
-            ref={inputRef}
-            type="color"
-            value={color}
-            onChange={(e) => handleColorChange(e.target.value)}
-            className="w-full h-32 cursor-pointer rounded border-0"
+        <>
+          {/* Backdrop overlay */}
+          <div 
+            className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-[2px]"
+            onClick={() => setIsOpen(false)}
           />
+          {/* Color picker popup */}
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] p-4 bg-popover border border-border rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95">
+            {/* Native color input */}
+            <input
+              ref={inputRef}
+              type="color"
+              value={color}
+              onChange={(e) => handleColorChange(e.target.value)}
+              className="w-48 h-36 cursor-pointer rounded-lg border-0"
+            />
 
-          {/* Preset colors */}
-          <div className="grid grid-cols-6 gap-1.5 mt-3">
-            {presetColors.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                onClick={() => handleColorChange(preset)}
-                className={cn(
-                  'rounded-md border-2 transition-all hover:scale-110',
-                  sizes.swatch,
-                  color === preset ? 'border-primary' : 'border-transparent'
-                )}
-                style={{ backgroundColor: preset }}
-              />
-            ))}
-          </div>
-
-          {/* Hex input */}
-          {showInput && (
-            <div className="mt-3">
-              <input
-                type="text"
-                value={color}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
-                    handleColorChange(val);
-                  }
-                }}
-                className="w-full px-2 py-1 text-sm font-mono border border-border rounded bg-background text-foreground"
-                placeholder="#000000"
-              />
+            {/* Preset colors */}
+            <div className="grid grid-cols-6 gap-2 mt-4">
+              {presetColors.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => handleColorChange(preset)}
+                  className={cn(
+                    'rounded-lg border-2 transition-all hover:scale-110 w-7 h-7',
+                    color === preset ? 'border-primary ring-2 ring-primary/30' : 'border-transparent'
+                  )}
+                  style={{ backgroundColor: preset }}
+                />
+              ))}
             </div>
-          )}
-        </div>
+
+            {/* Hex input */}
+            {showInput && (
+              <div className="mt-4">
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                      handleColorChange(val);
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-sm font-mono border border-border rounded-lg bg-background text-foreground"
+                  placeholder="#000000"
+                />
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
