@@ -83,7 +83,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       />
 
       {isOpen && (
-        <div className="absolute z-50 mt-2 p-3 bg-popover border border-border rounded-lg shadow-lg">
+        <div className="absolute z-[9999] mt-2 p-3 bg-popover border border-border rounded-xl shadow-2xl backdrop-blur-sm">
           {/* Native color input */}
           <input
             ref={inputRef}
