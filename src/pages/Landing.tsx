@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Box, Palette, Zap, Moon, Sun, Code, Layers, Sparkles } from 'lucide-react';
+import { ArrowRight, Box, Palette, Zap, Moon, Sun, Code, Layers, Sparkles, Github, ExternalLink } from 'lucide-react';
 import { Container, Flex, HStack, VStack, Heading, Text, Button, Badge, ColorModeSwitch } from '@/indoui';
 
 const CodeExample = () => {
@@ -74,9 +74,14 @@ const Landing: React.FC = () => {
               <Link to="/docs" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
                 Docs
               </Link>
-              <Link to="/playground" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
-                Playground
-              </Link>
+              <a 
+                href="https://github.com/indokudev/indoui" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Github className="h-5 w-5" />
+              </a>
               <ColorModeSwitch size="sm" />
             </HStack>
           </Flex>
@@ -88,7 +93,7 @@ const Landing: React.FC = () => {
         <Container maxW="4xl" centerContent>
           <Badge variant="subtle" size="lg" className="mb-6 animate-fade-in bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">
             <Sparkles className="h-3 w-3 mr-1 animate-pulse" />
-            v0.1.0 - Beta Release
+            v1.0.0 - Stable Release
           </Badge>
           
           <Heading as="h1" size="4xl" className="text-center mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
@@ -106,11 +111,11 @@ const Landing: React.FC = () => {
                 Get Started
               </Button>
             </Link>
-            <Link to="/playground">
-              <Button size="lg" variant="outline" className="border-primary/30 hover:border-primary/60 hover:bg-primary/5">
-                Try Playground
+            <a href="https://github.com/indokudev/indoui" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" leftIcon={<Github className="h-4 w-4" />} className="border-primary/30 hover:border-primary/60 hover:bg-primary/5">
+                GitHub
               </Button>
-            </Link>
+            </a>
           </HStack>
         </Container>
       </section>
@@ -208,7 +213,7 @@ const Landing: React.FC = () => {
               Installation
             </Text>
             <pre className="bg-muted rounded-lg p-4 overflow-x-auto border border-border/50">
-              <code className="text-foreground">npm install @indoui/react</code>
+              <code className="text-foreground">npm install @indokudev/indoui</code>
             </pre>
           </div>
           
@@ -217,7 +222,7 @@ const Landing: React.FC = () => {
               Setup Provider
             </Text>
             <pre className="bg-muted rounded-lg p-4 overflow-x-auto text-sm border border-border/50">
-              <code className="text-foreground">{`import { IndoUIProvider } from '@indoui/react'
+              <code className="text-foreground">{`import { IndoUIProvider } from '@indokudev/indoui'
 
 function App() {
   return (
@@ -238,7 +243,7 @@ function App() {
             Ready to build something <GradientText>amazing</GradientText>?
           </Heading>
           <Text className="text-muted-foreground text-center mb-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
-            Explore the docs or jump into the playground to see IndoUI in action.
+            Explore the docs to see IndoUI in action.
           </Text>
           <HStack gap={4} className="animate-fade-in" style={{ animationDelay: '200ms' }}>
             <Link to="/docs">
@@ -246,11 +251,11 @@ function App() {
                 Read the Docs
               </Button>
             </Link>
-            <Link to="/playground">
-              <Button size="lg" variant="outline" className="border-primary/30 hover:border-primary/60 hover:bg-primary/5">
-                Open Playground
+            <a href="https://www.npmjs.com/package/@indokudev/indoui" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" leftIcon={<ExternalLink className="h-4 w-4" />} className="border-primary/30 hover:border-primary/60 hover:bg-primary/5">
+                npm Package
               </Button>
-            </Link>
+            </a>
           </HStack>
         </Container>
       </section>
@@ -259,15 +264,37 @@ function App() {
       <footer className="py-8 border-t border-border/50 bg-muted/20">
         <Container maxW="6xl">
           <Flex justify="between" align="center" className="flex-col md:flex-row gap-4">
-            <Text size="sm" className="text-muted-foreground">
-              © 2024 IndoUI. Built with <span className="text-red-500">❤️</span> in Indonesia.
-            </Text>
+            <VStack align="start" gap={1}>
+              <Text size="sm" className="text-muted-foreground">
+                © 2024 IndoUI v1.0.0. Built with <span className="text-red-500">❤️</span> by{' '}
+                <a 
+                  href="https://github.com/indokudev" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  indokudev
+                </a>
+              </Text>
+            </VStack>
             <HStack gap={6}>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <a 
+                href="https://github.com/indokudev/indoui" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <Github className="h-4 w-4" />
                 GitHub
               </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                Twitter
+              <a 
+                href="https://www.npmjs.com/package/@indokudev/indoui" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <ExternalLink className="h-4 w-4" />
+                npm
               </a>
             </HStack>
           </Flex>

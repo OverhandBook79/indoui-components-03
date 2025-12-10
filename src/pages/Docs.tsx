@@ -205,14 +205,14 @@ const InstallationDocs = () => (
     </Heading>
     <Text className="text-muted-foreground mb-8">Get started with IndoUI in your React project. IndoUI is a Chakra UI-inspired component library built with Tailwind CSS.</Text>
     
-    <ComponentCard title="1. Install the package" description="Using npm or yarn" code={`npm install @indoui/react`}>
-      <CodeBlock>{`npm install @indoui/react`}</CodeBlock>
+    <ComponentCard title="1. Install the package" description="Using npm or yarn" code={`npm install @indokudev/indoui`}>
+      <CodeBlock>{`npm install @indokudev/indoui`}</CodeBlock>
     </ComponentCard>
     
     <ComponentCard
       title="2. Setup Provider"
       description="Wrap your app with IndoUIProvider for theming support"
-      code={`import { IndoUIProvider } from '@indoui/react'
+      code={`import { IndoUIProvider } from '@indokudev/indoui'
 
 function App() {
   return (
@@ -228,7 +228,7 @@ function App() {
     <ComponentCard
       title="3. Use Components"
       description="Import and use any component"
-      code={`import { Button, Input, Stack } from '@indoui/react'
+      code={`import { Button, Input, Stack } from '@indokudev/indoui'
 
 function MyComponent() {
   return (
@@ -1343,44 +1343,68 @@ export { sum, multiply };`}
   </div>
 );
 
-const QRCodeDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">QR Code</Heading>
-    <Text className="text-muted-foreground mb-8">Generate QR codes for URLs, text, or any data. Supports different sizes and error correction levels.</Text>
-    
-    <ComponentCard
-      title="Basic QR Code"
-      description="Generate a QR code from any string"
-      code={`<QRCode value="https://indoui.dev" />`}
-    >
-      <QRCode value="https://indoui.dev" />
-    </ComponentCard>
-    
-    <ComponentCard
-      title="Sizes"
-      description="Different QR code sizes"
-      code={`<QRCode value="Hello" size="xs" />
+const QRCodeDocs = () => {
+  const [qrValue, setQrValue] = useState('https://indoui.dev');
+  
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">QR Code</Heading>
+      <Text className="text-muted-foreground mb-8">Generate QR codes for URLs, text, or any data. Supports different sizes and error correction levels.</Text>
+      
+      <ComponentCard
+        title="Interactive QR Code Generator"
+        description="Enter any text or URL to generate a QR code"
+        code={`const [qrValue, setQrValue] = useState('https://indoui.dev');
+
+<Input 
+  value={qrValue} 
+  onChange={(e) => setQrValue(e.target.value)}
+  placeholder="Enter URL or text"
+/>
+<QRCode value={qrValue} />`}
+      >
+        <VStack gap={4} align="start" className="w-full">
+          <Input 
+            value={qrValue} 
+            onChange={(e) => setQrValue(e.target.value)}
+            placeholder="Enter URL or text to generate QR"
+            className="max-w-md"
+          />
+          <HStack gap={6} align="end">
+            <VStack gap={2}>
+              <Text size="sm" className="text-muted-foreground">Generated QR:</Text>
+              <QRCode value={qrValue || 'https://indoui.dev'} size="lg" />
+            </VStack>
+          </HStack>
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Sizes"
+        description="Different QR code sizes"
+        code={`<QRCode value="Hello" size="xs" />
 <QRCode value="Hello" size="sm" />
 <QRCode value="Hello" size="md" />
 <QRCode value="Hello" size="lg" />`}
-    >
-      <HStack gap={4} align="end">
-        <VStack gap={2}>
-          <Text size="xs">xs</Text>
-          <QRCode value="Hello IndoUI!" size="xs" />
-        </VStack>
-        <VStack gap={2}>
-          <Text size="xs">sm</Text>
-          <QRCode value="Hello IndoUI!" size="sm" />
-        </VStack>
-        <VStack gap={2}>
-          <Text size="xs">md</Text>
-          <QRCode value="Hello IndoUI!" size="md" />
-        </VStack>
-      </HStack>
-    </ComponentCard>
-  </div>
-);
+      >
+        <HStack gap={4} align="end">
+          <VStack gap={2}>
+            <Text size="xs">xs</Text>
+            <QRCode value="Hello IndoUI!" size="xs" />
+          </VStack>
+          <VStack gap={2}>
+            <Text size="xs">sm</Text>
+            <QRCode value="Hello IndoUI!" size="sm" />
+          </VStack>
+          <VStack gap={2}>
+            <Text size="xs">md</Text>
+            <QRCode value="Hello IndoUI!" size="md" />
+          </VStack>
+        </HStack>
+      </ComponentCard>
+    </div>
+  );
+};
 
 const StatDocs = () => (
   <div>
@@ -1617,50 +1641,99 @@ const ImageDocs = () => (
   </div>
 );
 
-const PaginationDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">Pagination</Heading>
-    <Text className="text-muted-foreground mb-8">Navigate through pages of content.</Text>
-    
-    <ComponentCard
-      title="Basic Pagination"
-      description="Page navigation controls"
-      code={`<Pagination
-  total={100}
-  pageSize={10}
-  currentPage={1}
-  onPageChange={(page) => console.log(page)}
-/>`}
-    >
-      <Pagination
-        totalPages={10}
-        currentPage={1}
-        onPageChange={(page) => console.log('Page:', page)}
-      />
-    </ComponentCard>
-  </div>
-);
+const PaginationDocs = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">Pagination</Heading>
+      <Text className="text-muted-foreground mb-8">Navigate through pages of content.</Text>
+      
+      <ComponentCard
+        title="Interactive Pagination"
+        description="Click to navigate between pages"
+        code={`const [currentPage, setCurrentPage] = useState(1);
 
-const TextEditorDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">Text Editor</Heading>
-    <Text className="text-muted-foreground mb-8">Rich text editor with formatting toolbar.</Text>
-    
-    <ComponentCard
-      title="Basic Text Editor"
-      description="Markdown-style text editor with formatting options"
-      code={`<TextEditor
+<Pagination
+  totalPages={10}
+  currentPage={currentPage}
+  onPageChange={setCurrentPage}
+/>`}
+      >
+        <VStack gap={4} align="start">
+          <Text size="sm" className="text-muted-foreground">Current Page: <strong className="text-foreground">{currentPage}</strong></Text>
+          <Pagination
+            totalPages={10}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Sizes & Variants"
+        description="Different pagination styles"
+        code={`<Pagination size="sm" variant="ghost" />
+<Pagination size="md" variant="outline" />
+<Pagination size="lg" variant="solid" />`}
+      >
+        <VStack gap={4} align="start">
+          <HStack gap={2}>
+            <Text size="sm" className="w-16">Small:</Text>
+            <Pagination totalPages={5} currentPage={1} onPageChange={() => {}} size="sm" />
+          </HStack>
+          <HStack gap={2}>
+            <Text size="sm" className="w-16">Medium:</Text>
+            <Pagination totalPages={5} currentPage={2} onPageChange={() => {}} size="md" />
+          </HStack>
+        </VStack>
+      </ComponentCard>
+    </div>
+  );
+};
+
+const TextEditorDocs = () => {
+  const [editorContent, setEditorContent] = useState('');
+  
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">Text Editor</Heading>
+      <Text className="text-muted-foreground mb-8">Rich text editor with formatting toolbar. Supports Markdown syntax.</Text>
+      
+      <ComponentCard
+        title="Interactive Text Editor"
+        description="Try the formatting toolbar - select text and click buttons, or use keyboard shortcuts (Ctrl+B, Ctrl+I)"
+        code={`const [content, setContent] = useState('');
+
+<TextEditor
+  value={content}
+  onChange={setContent}
   placeholder="Start typing..."
-  onChange={(value) => console.log(value)}
   minHeight="200px"
 />`}
-    >
-      <div className="w-full">
-        <TextEditor placeholder="Start typing your content here..." minHeight="150px" />
-      </div>
-    </ComponentCard>
-  </div>
-);
+      >
+        <VStack gap={4} className="w-full" align="start">
+          <div className="w-full">
+            <TextEditor 
+              value={editorContent}
+              onChange={setEditorContent}
+              placeholder="Try typing here... Select text and use the toolbar to format. Supports **bold**, _italic_, `code`, and more!"
+              minHeight="180px"
+            />
+          </div>
+          {editorContent && (
+            <VStack gap={2} align="start" className="w-full">
+              <Text size="sm" fontWeight="medium" className="text-muted-foreground">Raw Output:</Text>
+              <pre className="bg-muted p-3 rounded-lg text-xs w-full overflow-x-auto border border-border">
+                {editorContent}
+              </pre>
+            </VStack>
+          )}
+        </VStack>
+      </ComponentCard>
+    </div>
+  );
+};
 
 // Sample file tree data
 const sampleFileTree: FileNode[] = [
@@ -2279,9 +2352,14 @@ const Docs: React.FC = () => {
             </form>
             
             <HStack gap={4}>
-              <Link to="/playground" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
-                Playground
-              </Link>
+              <a 
+                href="https://github.com/indokudev/indoui" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+              >
+                GitHub
+              </a>
               <ColorModeSwitch size="sm" />
             </HStack>
           </Flex>
