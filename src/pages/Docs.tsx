@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Menu, X, Code as CodeIcon, Eye, Copy, Check, Search, Download, Plus, Minus, Bell } from 'lucide-react';
+import SearchModal from '@/components/SearchModal';
 import {
   Container, Flex, HStack, VStack, Heading, Text, Button, Badge, Input, Textarea, Select,
   Checkbox, Switch, Alert, Progress, Skeleton, Modal, ModalHeader, ModalBody, ModalFooter,
@@ -2618,6 +2619,7 @@ const Docs: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('installation');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   // Get all searchable items
@@ -2656,6 +2658,27 @@ const Docs: React.FC = () => {
     }
   };
 
+  // Keyboard shortcuts: "/" or Ctrl+F to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // "/" key to open search
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          setSearchModalOpen(true);
+        }
+      }
+      // Ctrl+F to open search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setSearchModalOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Update active section on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -2678,6 +2701,12 @@ const Docs: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={searchModalOpen} 
+        onClose={() => setSearchModalOpen(false)} 
+      />
+
       {/* Animated background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />

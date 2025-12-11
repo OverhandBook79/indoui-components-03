@@ -86,27 +86,35 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       'h-full transition-all duration-300 ease-out relative overflow-hidden',
       getColorStyles(colorScheme),
       radiusStyles[borderRadius],
-      isIndeterminate && 'w-1/3'
+      isIndeterminate && 'w-1/3 animate-[progress-indeterminate_1.5s_ease-in-out_infinite]'
     );
 
     return (
       <div className="w-full">
+        <style>{`
+          @keyframes progress-stripe {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+          }
+          @keyframes progress-indeterminate {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+          }
+        `}</style>
         <div ref={ref} className={trackClasses} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} {...props}>
           <div
             className={barClasses}
             style={{ 
               width: isIndeterminate ? undefined : `${percentage}%`,
-              animation: isIndeterminate ? 'progress-indeterminate 1.5s ease-in-out infinite' : undefined
             }}
           >
-            {/* Stripe overlay */}
             {hasStripe && (
               <div 
                 className="absolute inset-0"
                 style={{
-                  backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)',
+                  backgroundImage: 'linear-gradient(45deg, rgba(128,128,128,0.3) 25%, transparent 25%, transparent 50%, rgba(128,128,128,0.3) 50%, rgba(128,128,128,0.3) 75%, transparent 75%, transparent)',
                   backgroundSize: '1rem 1rem',
-                  animation: isAnimated ? 'progress-stripe 1s linear infinite' : undefined
+                  animation: isAnimated ? 'progress-stripe 0.5s linear infinite' : undefined
                 }}
               />
             )}
@@ -117,16 +125,6 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
             {Math.round(percentage)}%
           </div>
         )}
-        <style>{`
-          @keyframes progress-stripe {
-            from { background-position: 1rem 0; }
-            to { background-position: 0 0; }
-          }
-          @keyframes progress-indeterminate {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(400%); }
-          }
-        `}</style>
       </div>
     );
   }

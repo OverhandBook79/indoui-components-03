@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Box, Palette, Zap, Moon, Sun, Code, Layers, Sparkles, Github, ExternalLink } from 'lucide-react';
+import { ArrowRight, Box, Palette, Zap, Moon, Sun, Code, Layers, Sparkles, Github, ExternalLink, Search } from 'lucide-react';
 import { Container, Flex, HStack, VStack, Heading, Text, Button, Badge, ColorModeSwitch } from '@/indoui';
+import SearchModal from '@/components/SearchModal';
 
 const CodeExample = () => {
   const code = `import { Button, Input, Stack } from '@indoui/react'
@@ -50,8 +51,41 @@ const GradientText: React.FC<{ children: React.ReactNode; className?: string }> 
 );
 
 const Landing: React.FC = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Keyboard shortcuts: "/" or Ctrl+F to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // "/" key to open search
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          setSearchQuery('');
+          setSearchOpen(true);
+        }
+      }
+      // Ctrl+F to open search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setSearchQuery('');
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={searchOpen} 
+        onClose={() => setSearchOpen(false)} 
+        initialQuery={searchQuery}
+      />
+
       {/* Animated background gradient */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />
@@ -71,6 +105,15 @@ const Landing: React.FC = () => {
             </HStack>
             
             <HStack gap={4}>
+              {/* Search Button */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground bg-muted/50 border border-border rounded-lg hover:bg-muted transition-colors"
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Search...</span>
+                <kbd className="hidden sm:inline ml-2 px-1.5 py-0.5 text-xs bg-background rounded">/</kbd>
+              </button>
               <Link to="/docs" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
                 Docs
               </Link>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
 import { cn } from '@/lib/utils';
 import { SizeKey } from '../../theme/tokens';
@@ -21,7 +21,10 @@ export type Language =
   | 'graphql';
 
 export interface SyntaxHighlighterProps {
-  children: string;
+  children?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  editable?: boolean;
   language?: Language;
   showLineNumbers?: boolean;
   showCopyButton?: boolean;
@@ -42,6 +45,9 @@ const sizeClasses: Record<SizeKey, string> = {
 
 export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   children,
+  value,
+  onChange,
+  editable = false,
   language = 'typescript',
   showLineNumbers = true,
   showCopyButton = true,
@@ -51,8 +57,10 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   className,
 }) => {
   const [copied, setCopied] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
   
-  const code = children.trim();
+  const code = (value ?? children ?? '').trim();
   const prismTheme = theme === 'dark' ? themes.vsDark : themes.vsLight;
   
   const copyCode = async () => {
@@ -64,6 +72,33 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
       console.error('Failed to copy:', err);
     }
   };
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value);
+  }, [onChange]);
+
+  const syncScroll = useCallback(() => {
+    if (textareaRef.current && preRef.current) {
+      preRef.current.scrollTop = textareaRef.current.scrollTop;
+      preRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    }
+  }, []);
+
+  // Handle tab key for indentation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newValue = code.substring(0, start) + '  ' + code.substring(end);
+      onChange?.(newValue);
+      // Set cursor position after tab
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+      }, 0);
+    }
+  }, [code, onChange]);
   
   return (
     <div
@@ -110,42 +145,64 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
       )}
       
       {/* Code block */}
-      <Highlight theme={prismTheme} code={code} language={language}>
-        {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
-          <pre
-            className={cn(
-              highlightClassName,
-              'overflow-x-auto p-4 m-0 font-mono',
-              sizeClasses[size]
-            )}
-            style={{ ...style, margin: 0, background: 'transparent' }}
-          >
-            {tokens.map((line, i) => {
-              const lineProps = getLineProps({ line, key: i });
-              return (
-                <div key={i} {...lineProps} className={cn(lineProps.className, 'table-row')}>
-                  {showLineNumbers && (
-                    <span 
-                      className={cn(
-                        'table-cell pr-4 select-none text-right',
-                        theme === 'dark' ? 'text-[#858585]' : 'text-[#999999]'
-                      )}
-                    >
-                      {i + 1}
+      <div className="relative">
+        <Highlight theme={prismTheme} code={code} language={language}>
+          {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
+            <pre
+              ref={preRef}
+              className={cn(
+                highlightClassName,
+                'overflow-auto p-4 m-0 font-mono',
+                sizeClasses[size],
+                editable && 'pointer-events-none'
+              )}
+              style={{ ...style, margin: 0, background: 'transparent' }}
+            >
+              {tokens.map((line, i) => {
+                const lineProps = getLineProps({ line, key: i });
+                return (
+                  <div key={i} {...lineProps} className={cn(lineProps.className, 'table-row')}>
+                    {showLineNumbers && (
+                      <span 
+                        className={cn(
+                          'table-cell pr-4 select-none text-right',
+                          theme === 'dark' ? 'text-[#858585]' : 'text-[#999999]'
+                        )}
+                      >
+                        {i + 1}
+                      </span>
+                    )}
+                    <span className="table-cell">
+                      {line.map((token, key) => {
+                        const tokenProps = getTokenProps({ token, key });
+                        return <span key={key} {...tokenProps} />;
+                      })}
                     </span>
-                  )}
-                  <span className="table-cell">
-                    {line.map((token, key) => {
-                      const tokenProps = getTokenProps({ token, key });
-                      return <span key={key} {...tokenProps} />;
-                    })}
-                  </span>
-                </div>
-              );
-            })}
-          </pre>
+                  </div>
+                );
+              })}
+            </pre>
+          )}
+        </Highlight>
+        
+        {/* Editable textarea overlay */}
+        {editable && (
+          <textarea
+            ref={textareaRef}
+            value={code}
+            onChange={handleChange}
+            onScroll={syncScroll}
+            onKeyDown={handleKeyDown}
+            spellCheck={false}
+            className={cn(
+              'absolute inset-0 w-full h-full p-4 font-mono bg-transparent text-transparent caret-white resize-none outline-none',
+              sizeClasses[size],
+              showLineNumbers && 'pl-12'
+            )}
+            style={{ caretColor: theme === 'dark' ? '#fff' : '#000' }}
+          />
         )}
-      </Highlight>
+      </div>
     </div>
   );
 };
