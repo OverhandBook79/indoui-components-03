@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Play, Copy, Check, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as IndoUI from '@/indoui';
+import { SyntaxHighlighter } from '@/indoui/components/data-display/SyntaxHighlighter';
 
-const defaultCode = `// Try editing this code!
+const defaultCode = `// Try editing this code! Press Ctrl+R to run
 // All IndoUI components are available
 
 <IndoUI.Stack spacing={4}>
@@ -234,6 +235,18 @@ const Playground: React.FC = () => {
     executeCode();
   }, []);
 
+  // Keyboard shortcut: Ctrl+R to run
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        executeCode();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [executeCode]);
+
   const copyCode = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -270,6 +283,7 @@ const Playground: React.FC = () => {
             >
               <Play className="h-4 w-4" />
               Run
+              <kbd className="ml-1 text-xs opacity-70">Ctrl+R</kbd>
             </button>
           </div>
         </div>
@@ -277,18 +291,23 @@ const Playground: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-4rem)]">
-        {/* Code Editor */}
+        {/* Code Editor with Syntax Highlighting */}
         <div className="w-1/2 border-r border-border flex flex-col">
           <div className="p-3 border-b border-border bg-muted/30">
             <span className="text-sm font-medium text-muted-foreground">Code Editor</span>
           </div>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="flex-1 p-4 bg-background text-foreground font-mono text-sm resize-none focus:outline-none"
-            spellCheck={false}
-            placeholder="Write your JSX code here..."
-          />
+          <div className="flex-1 overflow-hidden">
+            <SyntaxHighlighter
+              value={code}
+              onChange={setCode}
+              editable
+              language="tsx"
+              theme="dark"
+              showLineNumbers
+              showCopyButton={false}
+              className="h-full rounded-none border-0"
+            />
+          </div>
         </div>
 
         {/* Preview */}
