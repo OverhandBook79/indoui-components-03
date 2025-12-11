@@ -21,38 +21,83 @@ export const Carousel: React.FC<CarouselProps> = ({
   loop = true,
   className,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const slideCount = children.length;
+  // For infinite loop, we clone first and last slides
+  const [currentIndex, setCurrentIndex] = useState(loop ? 1 : 0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Create slides array with clones for infinite loop
+  const slides = loop 
+    ? [children[slideCount - 1], ...children, children[0]]
+    : children;
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => {
-      if (prev === slideCount - 1) {
-        return loop ? 0 : prev;
-      }
-      return prev + 1;
-    });
-  }, [slideCount, loop]);
+    if (!isTransitioning) return;
+    setCurrentIndex((prev) => prev + 1);
+  }, [isTransitioning]);
 
   const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => {
-      if (prev === 0) {
-        return loop ? slideCount - 1 : prev;
-      }
-      return prev - 1;
-    });
-  }, [slideCount, loop]);
+    if (!isTransitioning) return;
+    setCurrentIndex((prev) => prev - 1);
+  }, [isTransitioning]);
 
   const goToSlide = (index: number) => {
-    setCurrentIndex(index);
+    setIsTransitioning(true);
+    setCurrentIndex(loop ? index + 1 : index);
   };
 
+  // Handle infinite loop transitions
+  useEffect(() => {
+    if (!loop) return;
+
+    const handleTransitionEnd = () => {
+      if (currentIndex === 0) {
+        setIsTransitioning(false);
+        setCurrentIndex(slideCount);
+      } else if (currentIndex === slideCount + 1) {
+        setIsTransitioning(false);
+        setCurrentIndex(1);
+      }
+    };
+
+    const track = trackRef.current;
+    if (track) {
+      track.addEventListener('transitionend', handleTransitionEnd);
+      return () => track.removeEventListener('transitionend', handleTransitionEnd);
+    }
+  }, [currentIndex, slideCount, loop]);
+
+  // Re-enable transition after instant jump
+  useEffect(() => {
+    if (!isTransitioning) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning]);
+
+  // Auto play
   useEffect(() => {
     if (autoPlay && !isHovered) {
       const timer = setInterval(goToNext, interval);
       return () => clearInterval(timer);
     }
   }, [autoPlay, interval, isHovered, goToNext]);
+
+  // Calculate actual index for dots
+  const actualIndex = loop 
+    ? currentIndex === 0 
+      ? slideCount - 1 
+      : currentIndex === slideCount + 1 
+        ? 0 
+        : currentIndex - 1
+    : currentIndex;
+
+  const canGoPrev = loop || currentIndex > 0;
+  const canGoNext = loop || currentIndex < slideCount - 1;
 
   return (
     <div
@@ -62,10 +107,14 @@ export const Carousel: React.FC<CarouselProps> = ({
     >
       {/* Slides */}
       <div
-        className="flex transition-transform duration-300 ease-in-out"
+        ref={trackRef}
+        className={cn(
+          'flex',
+          isTransitioning && 'transition-transform duration-300 ease-in-out'
+        )}
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {children.map((child, index) => (
+        {slides.map((child, index) => (
           <div key={index} className="w-full flex-shrink-0">
             {child}
           </div>
@@ -77,7 +126,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         <>
           <button
             onClick={goToPrev}
-            disabled={!loop && currentIndex === 0}
+            disabled={!canGoPrev}
             className={cn(
               'absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full',
               'bg-background/80 hover:bg-background shadow-md',
@@ -90,7 +139,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           </button>
           <button
             onClick={goToNext}
-            disabled={!loop && currentIndex === slideCount - 1}
+            disabled={!canGoNext}
             className={cn(
               'absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full',
               'bg-background/80 hover:bg-background shadow-md',
@@ -113,7 +162,7 @@ export const Carousel: React.FC<CarouselProps> = ({
               onClick={() => goToSlide(index)}
               className={cn(
                 'w-2 h-2 rounded-full transition-all',
-                index === currentIndex
+                index === actualIndex
                   ? 'bg-primary w-4'
                   : 'bg-primary/40 hover:bg-primary/60'
               )}

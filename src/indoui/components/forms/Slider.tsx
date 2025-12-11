@@ -26,6 +26,30 @@ const sizeClasses: Record<SizeKey, { track: string; thumb: string }> = {
   '2xl': { track: 'h-4', thumb: 'h-8 w-8' },
 };
 
+const getColorClass = (colorScheme: ColorScheme): { track: string; thumb: string } => {
+  const colorMap: Record<string, { track: string; thumb: string }> = {
+    primary: { track: 'bg-primary', thumb: 'border-primary' },
+    secondary: { track: 'bg-secondary', thumb: 'border-secondary' },
+    success: { track: 'bg-green-600', thumb: 'border-green-600' },
+    warning: { track: 'bg-yellow-500', thumb: 'border-yellow-500' },
+    danger: { track: 'bg-destructive', thumb: 'border-destructive' },
+    blue: { track: 'bg-blue-600', thumb: 'border-blue-600' },
+    red: { track: 'bg-red-600', thumb: 'border-red-600' },
+    green: { track: 'bg-green-600', thumb: 'border-green-600' },
+    yellow: { track: 'bg-yellow-500', thumb: 'border-yellow-500' },
+    purple: { track: 'bg-purple-600', thumb: 'border-purple-600' },
+    pink: { track: 'bg-pink-600', thumb: 'border-pink-600' },
+    cyan: { track: 'bg-cyan-600', thumb: 'border-cyan-600' },
+    teal: { track: 'bg-teal-600', thumb: 'border-teal-600' },
+    orange: { track: 'bg-orange-600', thumb: 'border-orange-600' },
+    lime: { track: 'bg-lime-600', thumb: 'border-lime-600' },
+    rose: { track: 'bg-rose-600', thumb: 'border-rose-600' },
+    gray: { track: 'bg-gray-600', thumb: 'border-gray-600' },
+    neutral: { track: 'bg-neutral-600', thumb: 'border-neutral-600' },
+  };
+  return colorMap[colorScheme] || colorMap.primary;
+};
+
 export const Slider: React.FC<SliderProps> = ({
   value: controlledValue,
   defaultValue = 0,
@@ -94,6 +118,7 @@ export const Slider: React.FC<SliderProps> = ({
 
   const percentage = ((value - min) / (max - min)) * 100;
   const sizes = sizeClasses[size];
+  const colors = getColorClass(colorScheme);
 
   return (
     <div className={cn('relative w-full', className)}>
@@ -113,7 +138,7 @@ export const Slider: React.FC<SliderProps> = ({
       >
         {/* Filled track */}
         <div
-          className={cn('absolute left-0 top-0 h-full rounded-full bg-primary')}
+          className={cn('absolute left-0 top-0 h-full rounded-full', colors.track)}
           style={{ width: `${percentage}%` }}
         />
         
@@ -121,10 +146,11 @@ export const Slider: React.FC<SliderProps> = ({
         <div
           className={cn(
             'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full',
-            'bg-background border-2 border-primary shadow-md',
+            'bg-background border-2 shadow-md',
             'hover:scale-110 transition-transform',
             isDragging && 'scale-110',
-            sizes.thumb
+            sizes.thumb,
+            colors.thumb
           )}
           style={{ left: `${percentage}%` }}
         />
@@ -141,6 +167,7 @@ export interface RangeSliderProps {
   step?: number;
   onChange?: (value: [number, number]) => void;
   size?: SizeKey;
+  colorScheme?: ColorScheme;
   disabled?: boolean;
   className?: string;
 }
@@ -153,6 +180,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   step = 1,
   onChange,
   size = 'md',
+  colorScheme = 'primary',
   disabled = false,
   className,
 }) => {
@@ -216,6 +244,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
   const percentage1 = ((value[0] - min) / (max - min)) * 100;
   const percentage2 = ((value[1] - min) / (max - min)) * 100;
   const sizes = sizeClasses[size];
+  const colors = getColorClass(colorScheme);
 
   return (
     <div className={cn('relative w-full', className)}>
@@ -229,7 +258,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
       >
         {/* Filled track */}
         <div
-          className="absolute top-0 h-full rounded-full bg-primary"
+          className={cn('absolute top-0 h-full rounded-full', colors.track)}
           style={{
             left: `${percentage1}%`,
             width: `${percentage2 - percentage1}%`
@@ -243,10 +272,11 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
             onMouseDown={(e) => handleMouseDown(e, i as 0 | 1)}
             className={cn(
               'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full',
-              'bg-background border-2 border-primary shadow-md cursor-grab',
+              'bg-background border-2 shadow-md cursor-grab',
               'hover:scale-110 transition-transform',
               activeThumb === i && 'scale-110 cursor-grabbing',
-              sizes.thumb
+              sizes.thumb,
+              colors.thumb
             )}
             style={{ left: `${i === 0 ? percentage1 : percentage2}%` }}
           />

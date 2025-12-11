@@ -76,19 +76,17 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
     const trackClasses = cn(
-      'w-full bg-muted overflow-hidden',
+      'w-full bg-muted overflow-hidden relative',
       sizeStyles[size],
       radiusStyles[borderRadius],
       className
     );
 
     const barClasses = cn(
-      'h-full transition-all duration-300 ease-out',
+      'h-full transition-all duration-300 ease-out relative overflow-hidden',
       getColorStyles(colorScheme),
       radiusStyles[borderRadius],
-      hasStripe && 'bg-gradient-to-r from-transparent via-white/20 to-transparent bg-[length:1rem_100%]',
-      isAnimated && hasStripe && 'animate-[progress-stripe_1s_linear_infinite]',
-      isIndeterminate && 'animate-[progress-indeterminate_1.5s_ease-in-out_infinite] w-1/3'
+      isIndeterminate && 'w-1/3'
     );
 
     return (
@@ -96,8 +94,23 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         <div ref={ref} className={trackClasses} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} {...props}>
           <div
             className={barClasses}
-            style={{ width: isIndeterminate ? undefined : `${percentage}%` }}
-          />
+            style={{ 
+              width: isIndeterminate ? undefined : `${percentage}%`,
+              animation: isIndeterminate ? 'progress-indeterminate 1.5s ease-in-out infinite' : undefined
+            }}
+          >
+            {/* Stripe overlay */}
+            {hasStripe && (
+              <div 
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)',
+                  backgroundSize: '1rem 1rem',
+                  animation: isAnimated ? 'progress-stripe 1s linear infinite' : undefined
+                }}
+              />
+            )}
+          </div>
         </div>
         {showValue && !isIndeterminate && (
           <div className="text-sm text-muted-foreground mt-1 text-right">

@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, Code, Link as LinkIcon, Image, Heading1, Heading2, Quote } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Link as LinkIcon, Type, ChevronDown } from 'lucide-react';
 
 export type TextEditorSize = 'sm' | 'md' | 'lg';
 
 export interface TextEditorProps {
   value?: string;
   defaultValue?: string;
-  onChange?: (value: string) => void;
+  onChange?: (html: string) => void;
   placeholder?: string;
   size?: TextEditorSize;
   minHeight?: string;
@@ -16,6 +16,26 @@ export interface TextEditorProps {
   readOnly?: boolean;
   className?: string;
 }
+
+const fontFamilies = [
+  { name: 'Default', value: '' },
+  { name: 'Arial', value: 'Arial, sans-serif' },
+  { name: 'Times New Roman', value: 'Times New Roman, serif' },
+  { name: 'Georgia', value: 'Georgia, serif' },
+  { name: 'Verdana', value: 'Verdana, sans-serif' },
+  { name: 'Courier New', value: 'Courier New, monospace' },
+  { name: 'Comic Sans MS', value: 'Comic Sans MS, cursive' },
+];
+
+const fontSizes = [
+  { name: '10', value: '1' },
+  { name: '12', value: '2' },
+  { name: '14', value: '3' },
+  { name: '16', value: '4' },
+  { name: '18', value: '5' },
+  { name: '24', value: '6' },
+  { name: '32', value: '7' },
+];
 
 const sizeClasses: Record<TextEditorSize, string> = {
   sm: 'text-sm',
@@ -38,111 +58,179 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   readOnly = false,
   className,
 }) => {
-  const [content, setContent] = useState(defaultValue);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const displayValue = value !== undefined ? value : content;
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [showFontFamily, setShowFontFamily] = useState(false);
+  const [showFontSize, setShowFontSize] = useState(false);
+  const [currentFont, setCurrentFont] = useState('Default');
+  const [currentSize, setCurrentSize] = useState('14');
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    setContent(newValue);
-    onChange?.(newValue);
+  useEffect(() => {
+    if (editorRef.current && value !== undefined) {
+      if (editorRef.current.innerHTML !== value) {
+        editorRef.current.innerHTML = value;
+      }
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (editorRef.current && defaultValue && !value) {
+      editorRef.current.innerHTML = defaultValue;
+    }
+  }, []);
+
+  const execCommand = useCallback((command: string, value: string = '') => {
+    document.execCommand(command, false, value);
+    editorRef.current?.focus();
+    handleChange();
+  }, []);
+
+  const handleChange = useCallback(() => {
+    if (editorRef.current) {
+      onChange?.(editorRef.current.innerHTML);
+    }
   }, [onChange]);
 
-  const insertAtCursor = useCallback((before: string, after: string = '') => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = displayValue.substring(start, end);
-    
-    const newText = displayValue.substring(0, start) + before + selectedText + after + displayValue.substring(end);
-    setContent(newText);
-    onChange?.(newText);
-
-    // Set cursor position after operation
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = start + before.length + selectedText.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  }, [displayValue, onChange]);
-
-  const wrapSelection = useCallback((wrapper: string) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = displayValue.substring(start, end);
-    
-    if (selectedText) {
-      const newText = displayValue.substring(0, start) + wrapper + selectedText + wrapper + displayValue.substring(end);
-      setContent(newText);
-      onChange?.(newText);
-    } else {
-      // Insert placeholder text
-      const placeholderText = 'text';
-      const newText = displayValue.substring(0, start) + wrapper + placeholderText + wrapper + displayValue.substring(end);
-      setContent(newText);
-      onChange?.(newText);
-      
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + wrapper.length, start + wrapper.length + placeholderText.length);
-      }, 0);
+  const handleFontFamily = (font: typeof fontFamilies[0]) => {
+    setCurrentFont(font.name);
+    setShowFontFamily(false);
+    if (font.value) {
+      execCommand('fontName', font.value);
     }
-  }, [displayValue, onChange]);
+  };
 
-  const insertLinePrefix = useCallback((prefix: string) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+  const handleFontSize = (size: typeof fontSizes[0]) => {
+    setCurrentSize(size.name);
+    setShowFontSize(false);
+    execCommand('fontSize', size.value);
+  };
 
-    const start = textarea.selectionStart;
-    const lineStart = displayValue.lastIndexOf('\n', start - 1) + 1;
-    
-    const newText = displayValue.substring(0, lineStart) + prefix + displayValue.substring(lineStart);
-    setContent(newText);
-    onChange?.(newText);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length);
-    }, 0);
-  }, [displayValue, onChange]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey) {
       switch (e.key.toLowerCase()) {
         case 'b':
           e.preventDefault();
-          wrapSelection('**');
+          execCommand('bold');
           break;
         case 'i':
           e.preventDefault();
-          wrapSelection('_');
+          execCommand('italic');
           break;
         case 'u':
           e.preventDefault();
-          wrapSelection('__');
+          execCommand('underline');
+          break;
+        case 'z':
+          e.preventDefault();
+          if (e.shiftKey) {
+            execCommand('redo');
+          } else {
+            execCommand('undo');
+          }
           break;
       }
     }
-  }, [wrapSelection]);
+  }, [execCommand]);
+
+  const insertLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) {
+      execCommand('createLink', url);
+    }
+  };
 
   return (
     <div className={cn(
       "border border-border rounded-lg overflow-hidden bg-card",
-      disabled && "opacity-50",
+      disabled && "opacity-50 pointer-events-none",
       className
     )}>
       {/* Toolbar */}
       {!readOnly && (
         <div className="flex items-center gap-0.5 p-2 border-b border-border bg-muted/30 flex-wrap">
+          {/* Undo/Redo */}
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => wrapSelection('**')}
+            onClick={() => execCommand('undo')}
+            disabled={disabled}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className={toolbarButtonClass}
+            onClick={() => execCommand('redo')}
+            disabled={disabled}
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo className="h-4 w-4" />
+          </button>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
+          {/* Font Family Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              className={cn(toolbarButtonClass, "flex items-center gap-1 min-w-[100px] justify-between")}
+              onClick={() => { setShowFontFamily(!showFontFamily); setShowFontSize(false); }}
+              disabled={disabled}
+            >
+              <span className="text-xs truncate">{currentFont}</span>
+              <ChevronDown className="h-3 w-3" />
+            </button>
+            {showFontFamily && (
+              <div className="absolute top-full left-0 mt-1 bg-popover border border-border rounded-lg shadow-lg z-50 min-w-[150px]">
+                {fontFamilies.map((font) => (
+                  <button
+                    key={font.name}
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                    style={{ fontFamily: font.value || 'inherit' }}
+                    onClick={() => handleFontFamily(font)}
+                  >
+                    {font.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Font Size Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              className={cn(toolbarButtonClass, "flex items-center gap-1 min-w-[60px] justify-between")}
+              onClick={() => { setShowFontSize(!showFontSize); setShowFontFamily(false); }}
+              disabled={disabled}
+            >
+              <span className="text-xs">{currentSize}</span>
+              <ChevronDown className="h-3 w-3" />
+            </button>
+            {showFontSize && (
+              <div className="absolute top-full left-0 mt-1 bg-popover border border-border rounded-lg shadow-lg z-50 min-w-[60px]">
+                {fontSizes.map((size) => (
+                  <button
+                    key={size.name}
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                    onClick={() => handleFontSize(size)}
+                  >
+                    {size.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
+          {/* Text formatting */}
+          <button
+            type="button"
+            className={toolbarButtonClass}
+            onClick={() => execCommand('bold')}
             disabled={disabled}
             title="Bold (Ctrl+B)"
           >
@@ -151,7 +239,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => wrapSelection('_')}
+            onClick={() => execCommand('italic')}
             disabled={disabled}
             title="Italic (Ctrl+I)"
           >
@@ -160,7 +248,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => wrapSelection('__')}
+            onClick={() => execCommand('underline')}
             disabled={disabled}
             title="Underline (Ctrl+U)"
           >
@@ -169,58 +257,60 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => wrapSelection('~~')}
+            onClick={() => execCommand('strikeThrough')}
             disabled={disabled}
             title="Strikethrough"
           >
             <Strikethrough className="h-4 w-4" />
           </button>
-          <button
-            type="button"
-            className={toolbarButtonClass}
-            onClick={() => wrapSelection('`')}
-            disabled={disabled}
-            title="Code"
-          >
-            <Code className="h-4 w-4" />
-          </button>
-          
+
           <div className="w-px h-5 bg-border mx-1" />
-          
+
+          {/* Alignment */}
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertLinePrefix('# ')}
+            onClick={() => execCommand('justifyLeft')}
             disabled={disabled}
-            title="Heading 1"
+            title="Align Left"
           >
-            <Heading1 className="h-4 w-4" />
+            <AlignLeft className="h-4 w-4" />
           </button>
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertLinePrefix('## ')}
+            onClick={() => execCommand('justifyCenter')}
             disabled={disabled}
-            title="Heading 2"
+            title="Align Center"
           >
-            <Heading2 className="h-4 w-4" />
+            <AlignCenter className="h-4 w-4" />
           </button>
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertLinePrefix('> ')}
+            onClick={() => execCommand('justifyRight')}
             disabled={disabled}
-            title="Quote"
+            title="Align Right"
           >
-            <Quote className="h-4 w-4" />
+            <AlignRight className="h-4 w-4" />
           </button>
-          
+          <button
+            type="button"
+            className={toolbarButtonClass}
+            onClick={() => execCommand('justifyFull')}
+            disabled={disabled}
+            title="Justify"
+          >
+            <AlignJustify className="h-4 w-4" />
+          </button>
+
           <div className="w-px h-5 bg-border mx-1" />
-          
+
+          {/* Lists */}
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertLinePrefix('- ')}
+            onClick={() => execCommand('insertUnorderedList')}
             disabled={disabled}
             title="Bullet List"
           >
@@ -229,57 +319,61 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertLinePrefix('1. ')}
+            onClick={() => execCommand('insertOrderedList')}
             disabled={disabled}
             title="Numbered List"
           >
             <ListOrdered className="h-4 w-4" />
           </button>
-          
+
           <div className="w-px h-5 bg-border mx-1" />
-          
+
+          {/* Link */}
           <button
             type="button"
             className={toolbarButtonClass}
-            onClick={() => insertAtCursor('[', '](url)')}
+            onClick={insertLink}
             disabled={disabled}
             title="Insert Link"
           >
             <LinkIcon className="h-4 w-4" />
           </button>
-          <button
-            type="button"
-            className={toolbarButtonClass}
-            onClick={() => insertAtCursor('![alt](', ')')}
-            disabled={disabled}
-            title="Insert Image"
-          >
-            <Image className="h-4 w-4" />
-          </button>
         </div>
       )}
       
       {/* Editor Area */}
-      <textarea
-        ref={textareaRef}
-        value={displayValue}
-        onChange={handleChange}
+      <div
+        ref={editorRef}
+        contentEditable={!disabled && !readOnly}
+        onInput={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        disabled={disabled}
-        readOnly={readOnly}
+        onClick={() => { setShowFontFamily(false); setShowFontSize(false); }}
+        data-placeholder={placeholder}
         className={cn(
-          "w-full resize-none bg-transparent p-4 focus:outline-none font-mono",
-          sizeClasses[size]
+          "w-full bg-transparent p-4 focus:outline-none overflow-auto",
+          sizeClasses[size],
+          "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground empty:before:pointer-events-none"
         )}
         style={{ minHeight, maxHeight }}
       />
       
-      {/* Footer with markdown hint */}
-      <div className="px-4 py-2 border-t border-border bg-muted/20">
+      {/* Footer */}
+      <div className="px-4 py-2 border-t border-border bg-muted/20 flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Markdown supported: **bold**, _italic_, `code`, # heading, - list, [link](url)
+          WYSIWYG Editor • HTML output
         </p>
+        <button
+          type="button"
+          className="text-xs text-primary hover:underline"
+          onClick={() => {
+            if (editorRef.current) {
+              const html = editorRef.current.innerHTML;
+              navigator.clipboard.writeText(html);
+            }
+          }}
+        >
+          Copy HTML
+        </button>
       </div>
     </div>
   );
