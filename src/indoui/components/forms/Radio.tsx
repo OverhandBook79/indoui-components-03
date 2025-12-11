@@ -19,10 +19,10 @@ const sizeStyles: Record<SizeKey, { box: string; dot: string; label: string }> =
 };
 
 const colorStyles: Record<string, string> = {
-  primary: 'data-[state=checked]:border-primary',
-  success: 'data-[state=checked]:border-green-600',
-  warning: 'data-[state=checked]:border-yellow-500',
-  danger: 'data-[state=checked]:border-destructive',
+  primary: 'border-primary',
+  success: 'border-green-600',
+  warning: 'border-yellow-500',
+  danger: 'border-destructive',
 };
 
 const dotColorStyles: Record<string, string> = {
@@ -33,43 +33,55 @@ const dotColorStyles: Record<string, string> = {
 };
 
 export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
-  ({ size = 'md', colorScheme = 'primary', label, isInvalid, className, disabled, checked, ...props }, ref) => {
+  ({ size = 'md', colorScheme = 'primary', label, isInvalid, className, disabled, checked, onChange, ...props }, ref) => {
     const sizeStyle = sizeStyles[size];
+
+    const handleClick = () => {
+      if (disabled) return;
+      // Trigger onChange with a synthetic event
+      if (onChange) {
+        const syntheticEvent = {
+          target: { value: props.value, checked: true },
+          currentTarget: { value: props.value, checked: true },
+        } as React.ChangeEvent<HTMLInputElement>;
+        onChange(syntheticEvent);
+      }
+    };
 
     return (
       <label
         className={cn(
-          'inline-flex items-center gap-2 cursor-pointer',
+          'inline-flex items-center gap-2 cursor-pointer select-none',
           disabled && 'cursor-not-allowed opacity-50',
           className
         )}
+        onClick={handleClick}
       >
         <div className="relative">
           <input
             ref={ref}
             type="radio"
-            className="sr-only peer"
+            className="sr-only"
             checked={checked}
             disabled={disabled}
+            onChange={onChange}
             {...props}
           />
           <div
-            data-state={checked ? 'checked' : 'unchecked'}
             className={cn(
               'flex items-center justify-center border-2 rounded-full transition-all duration-200',
               sizeStyle.box,
-              colorStyles[colorScheme],
-              !checked && 'border-input bg-background',
+              checked ? colorStyles[colorScheme] : 'border-input bg-background',
               isInvalid && 'border-destructive',
-              'peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2'
+              !disabled && 'hover:border-primary/70'
             )}
           >
             {checked && (
-              <div className={cn('rounded-full', sizeStyle.dot, dotColorStyles[colorScheme])} />
+              <div className={cn('rounded-full transition-transform scale-100', sizeStyle.dot, dotColorStyles[colorScheme])} />
             )}
           </div>
         </div>
-        {label && <span className={sizeStyle.label}>{label}</span>}
+        {label && <span className={cn(sizeStyle.label, 'text-foreground')}>{label}</span>}
       </label>
     );
   }
@@ -96,28 +108,35 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   direction = 'vertical',
   spacing = 3,
 }) => {
-  const [internalValue, setInternalValue] = React.useState(defaultValue);
+  const [internalValue, setInternalValue] = React.useState(defaultValue || '');
   const currentValue = value !== undefined ? value : internalValue;
+
+  const handleChange = (newValue: string) => {
+    setInternalValue(newValue);
+    onChange?.(newValue);
+  };
 
   return (
     <div
       className={cn(
         'flex',
         direction === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
-        `gap-${spacing}`
+        spacing === 1 && 'gap-1',
+        spacing === 2 && 'gap-2',
+        spacing === 3 && 'gap-3',
+        spacing === 4 && 'gap-4',
+        spacing === 5 && 'gap-5',
+        spacing === 6 && 'gap-6',
       )}
       role="radiogroup"
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement<RadioProps>(child)) {
+          const childValue = child.props.value as string;
           return React.cloneElement(child, {
             name,
-            checked: child.props.value === currentValue,
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              setInternalValue(e.target.value);
-              onChange?.(e.target.value);
-              child.props.onChange?.(e);
-            },
+            checked: childValue === currentValue,
+            onChange: () => handleChange(childValue),
           });
         }
         return child;

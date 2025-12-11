@@ -74,6 +74,9 @@ const Landing: React.FC = () => {
               <Link to="/docs" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
                 Docs
               </Link>
+              <Link to="/playground" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                Playground
+              </Link>
               <a 
                 href="https://github.com/indokudev/indoui" 
                 target="_blank" 
