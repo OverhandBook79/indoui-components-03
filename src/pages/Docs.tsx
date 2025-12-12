@@ -12,9 +12,11 @@ import {
   ColorPicker, DatePicker, Drawer, DrawerHeader, DrawerBody, DrawerFooter, TextEditor, FileTree,
   QRCode, SyntaxHighlighter, Spinner, EmptyState, PasswordInput, SegmentedControl, IconButton,
   Pagination, Timeline, Carousel, Image, List, ListItem, Breadcrumb, Steps, Clipboard, ClipboardButton,
-  Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter,
+  Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter, Toast, ToastContainer,
+  CodeEditor, WebPlayer,
   useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
+import { Menu as MenuComponent, ContextMenu, MenuDivider } from '@/indoui/components/overlay/Menu';
 import type { FileNode } from '@/indoui';
 import { colorPalette, ColorScheme } from '@/indoui/theme/tokens';
 import { toast } from 'sonner';
@@ -178,6 +180,7 @@ const sidebarItems = [
     category: 'Feedback',
     items: [
       { id: 'alert', label: 'Alert' },
+      { id: 'toast', label: 'Toast' },
       { id: 'progress', label: 'Progress' },
       { id: 'skeleton', label: 'Skeleton' },
       { id: 'spinner', label: 'Spinner' },
@@ -2554,6 +2557,500 @@ const StepsDocs = () => (
   </div>
 );
 
+// ============= MENU =============
+
+const MenuDocs = () => {
+  const [toastVisible, setToastVisible] = useState(false);
+  
+  const menuItems = [
+    { label: 'New File', shortcut: 'Ctrl+N', onClick: () => toast.success('New file created!') },
+    { label: 'Open File', shortcut: 'Ctrl+O', onClick: () => toast.success('Opening file...') },
+    { label: 'Save', shortcut: 'Ctrl+S', onClick: () => toast.success('File saved!') },
+    { 
+      label: 'Export', 
+      children: [
+        { label: 'Export as PDF', onClick: () => toast.success('Exporting as PDF...') },
+        { label: 'Export as PNG', onClick: () => toast.success('Exporting as PNG...') },
+        { label: 'Export as SVG', onClick: () => toast.success('Exporting as SVG...') },
+      ]
+    },
+    { label: 'Delete', danger: true, onClick: () => toast.error('File deleted!') },
+  ];
+
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">
+        <GradientText>Menu</GradientText>
+      </Heading>
+      <Text className="text-muted-foreground mb-8">Dropdown menu and context menu components for actions.</Text>
+      
+      <ComponentCard
+        title="Basic Menu"
+        description="Dropdown menu with trigger button"
+        code={`import { Menu } from '@indokudev/indoui'
+
+const items = [
+  { label: 'New File', shortcut: 'Ctrl+N', onClick: () => {} },
+  { label: 'Open File', shortcut: 'Ctrl+O', onClick: () => {} },
+  { label: 'Save', shortcut: 'Ctrl+S', onClick: () => {} },
+  { label: 'Delete', danger: true, onClick: () => {} },
+];
+
+<Menu 
+  trigger={<Button>Open Menu</Button>}
+  items={items}
+/>`}
+      >
+        <MenuComponent
+          trigger={<Button>Open Menu</Button>}
+          items={menuItems}
+        />
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Menu with Submenus"
+        description="Nested menu items"
+        code={`const items = [
+  { label: 'File' },
+  { 
+    label: 'Export', 
+    children: [
+      { label: 'Export as PDF' },
+      { label: 'Export as PNG' },
+    ]
+  },
+];
+
+<Menu trigger={<Button>Actions</Button>} items={items} />`}
+      >
+        <MenuComponent
+          trigger={<Button variant="outline">Actions</Button>}
+          items={[
+            { label: 'Edit', onClick: () => toast.success('Editing...') },
+            { label: 'Duplicate', onClick: () => toast.success('Duplicated!') },
+            { 
+              label: 'Move to', 
+              children: [
+                { label: 'Folder 1', onClick: () => toast.success('Moved to Folder 1') },
+                { label: 'Folder 2', onClick: () => toast.success('Moved to Folder 2') },
+                { label: 'Archive', onClick: () => toast.success('Archived!') },
+              ]
+            },
+            { label: 'Delete', danger: true, onClick: () => toast.error('Deleted!') },
+          ]}
+        />
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Menu Alignment"
+        description="Align menu to start, center, or end"
+        code={`<Menu trigger={...} items={...} align="start" />
+<Menu trigger={...} items={...} align="center" />
+<Menu trigger={...} items={...} align="end" />`}
+      >
+        <HStack gap={4}>
+          <MenuComponent
+            trigger={<Button size="sm">Left</Button>}
+            items={[{ label: 'Item 1' }, { label: 'Item 2' }]}
+            align="start"
+          />
+          <MenuComponent
+            trigger={<Button size="sm">Center</Button>}
+            items={[{ label: 'Item 1' }, { label: 'Item 2' }]}
+            align="center"
+          />
+          <MenuComponent
+            trigger={<Button size="sm">Right</Button>}
+            items={[{ label: 'Item 1' }, { label: 'Item 2' }]}
+            align="end"
+          />
+        </HStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Context Menu"
+        description="Right-click to open context menu"
+        code={`<ContextMenu
+  items={[
+    { label: 'Copy', shortcut: 'Ctrl+C' },
+    { label: 'Paste', shortcut: 'Ctrl+V' },
+    { label: 'Delete', danger: true },
+  ]}
+>
+  <div>Right-click me!</div>
+</ContextMenu>`}
+      >
+        <ContextMenu
+          items={[
+            { label: 'Copy', shortcut: 'Ctrl+C', onClick: () => toast.success('Copied!') },
+            { label: 'Cut', shortcut: 'Ctrl+X', onClick: () => toast.success('Cut!') },
+            { label: 'Paste', shortcut: 'Ctrl+V', onClick: () => toast.success('Pasted!') },
+            { label: 'Delete', danger: true, onClick: () => toast.error('Deleted!') },
+          ]}
+        >
+          <div className="p-8 border-2 border-dashed border-border rounded-lg text-center bg-muted/30 cursor-context-menu">
+            <Text className="text-muted-foreground">Right-click here to open context menu</Text>
+          </div>
+        </ContextMenu>
+      </ComponentCard>
+    </div>
+  );
+};
+
+// ============= TOAST =============
+
+const ToastDocs = () => {
+  const [showToast, setShowToast] = useState<string | null>(null);
+
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">
+        <GradientText>Toast</GradientText>
+      </Heading>
+      <Text className="text-muted-foreground mb-8">Toast notifications for feedback messages.</Text>
+      
+      <ComponentCard
+        title="Toast Statuses"
+        description="Different status styles for toasts"
+        code={`import { Toast, ToastContainer } from '@indokudev/indoui'
+
+// Info toast
+<Toast status="info" title="Info" description="This is info" />
+
+// Success toast
+<Toast status="success" title="Success" description="Done!" />
+
+// Warning toast
+<Toast status="warning" title="Warning" description="Careful!" />
+
+// Error toast
+<Toast status="error" title="Error" description="Error!" />`}
+      >
+        <VStack gap={3} align="stretch" className="w-full max-w-md">
+          <Toast status="info" title="Info" description="This is an informational message" />
+          <Toast status="success" title="Success" description="Operation completed successfully!" />
+          <Toast status="warning" title="Warning" description="Please be careful with this action" />
+          <Toast status="error" title="Error" description="Something went wrong. Please try again." />
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Toast Sizes"
+        description="Different toast sizes"
+        code={`<Toast size="sm" title="Small" description="Small toast" />
+<Toast size="md" title="Medium" description="Medium toast" />
+<Toast size="lg" title="Large" description="Large toast" />`}
+      >
+        <VStack gap={3} align="stretch">
+          <Toast size="sm" status="info" title="Small Toast" description="A compact notification" />
+          <Toast size="md" status="success" title="Medium Toast" description="Standard size notification" />
+          <Toast size="lg" status="warning" title="Large Toast" description="A larger notification for more content" />
+        </VStack>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Using with Sonner"
+        description="We recommend using sonner for toast notifications"
+        code={`import { toast } from 'sonner'
+
+// Trigger toasts
+toast.success('Successfully saved!')
+toast.error('Failed to save')
+toast.info('New update available')
+toast.warning('Low storage space')
+
+// Custom toast
+toast('Custom message', {
+  description: 'With description',
+  action: {
+    label: 'Undo',
+    onClick: () => console.log('Undo'),
+  },
+})`}
+      >
+        <HStack gap={2} className="flex-wrap">
+          <Button size="sm" colorScheme="blue" onClick={() => toast.info('Info toast!')}>Info</Button>
+          <Button size="sm" colorScheme="green" onClick={() => toast.success('Success toast!')}>Success</Button>
+          <Button size="sm" colorScheme="yellow" onClick={() => toast.warning('Warning toast!')}>Warning</Button>
+          <Button size="sm" colorScheme="red" onClick={() => toast.error('Error toast!')}>Error</Button>
+        </HStack>
+      </ComponentCard>
+    </div>
+  );
+};
+
+// ============= CODE EDITOR =============
+
+const CodeEditorDocs = () => {
+  const [code, setCode] = useState(`function greet(name: string) {
+  console.log(\`Hello, \${name}!\`);
+}
+
+greet('IndoUI');`);
+
+  return (
+    <div>
+      <Heading as="h1" size="3xl" className="mb-4">
+        <GradientText>Code Editor</GradientText>
+      </Heading>
+      <Text className="text-muted-foreground mb-8">Monaco-like code editor with syntax highlighting, auto-indent, and multi-file support.</Text>
+      
+      <ComponentCard
+        title="Basic Code Editor"
+        description="Editable code with syntax highlighting"
+        code={`import { CodeEditor } from '@indokudev/indoui'
+
+const [code, setCode] = useState('console.log("Hello!")');
+
+<CodeEditor
+  value={code}
+  onChange={setCode}
+  language="typescript"
+  filename="example.ts"
+/>`}
+      >
+        <Box w="full">
+          <CodeEditor
+            value={code}
+            onChange={setCode}
+            language="typescript"
+            filename="example.ts"
+            h="200px"
+          />
+        </Box>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Read-only Mode"
+        description="Display code without editing"
+        code={`<CodeEditor
+  value={code}
+  readOnly
+  language="javascript"
+/>`}
+      >
+        <Box w="full">
+          <CodeEditor
+            value={`const app = express();
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+app.listen(3000);`}
+            readOnly
+            language="javascript"
+            filename="server.js"
+            h="180px"
+          />
+        </Box>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Multi-file Editor"
+        description="Editor with multiple file tabs"
+        code={`<CodeEditor
+  files={[
+    { name: 'App.tsx', language: 'tsx', content: '...' },
+    { name: 'styles.css', language: 'css', content: '...' },
+  ]}
+  activeFile="App.tsx"
+  onFileChange={(file) => console.log(file)}
+/>`}
+      >
+        <Box w="full">
+          <CodeEditor
+            files={[
+              { name: 'App.tsx', language: 'tsx', content: `import React from 'react';\n\nexport const App = () => {\n  return <div>Hello!</div>;\n};` },
+              { name: 'styles.css', language: 'css', content: `.container {\n  padding: 20px;\n  background: #f0f0f0;\n}` },
+              { name: 'config.json', language: 'json', content: `{\n  "name": "my-app",\n  "version": "1.0.0"\n}` },
+            ]}
+            activeFile="App.tsx"
+            h="220px"
+          />
+        </Box>
+      </ComponentCard>
+      
+      <ComponentCard
+        title="Light Theme with Minimap"
+        description="Light theme variant with code minimap"
+        code={`<CodeEditor
+  value={code}
+  theme="light"
+  showMinimap
+/>`}
+      >
+        <Box w="full">
+          <CodeEditor
+            value={`// React component example
+import React, { useState } from 'react';
+
+interface Props {
+  title: string;
+  count?: number;
+}
+
+export const Counter: React.FC<Props> = ({ title, count = 0 }) => {
+  const [value, setValue] = useState(count);
+  
+  return (
+    <div className="counter">
+      <h2>{title}</h2>
+      <p>Count: {value}</p>
+      <button onClick={() => setValue(v => v + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+};`}
+            theme="light"
+            showMinimap
+            language="tsx"
+            filename="Counter.tsx"
+            h="300px"
+          />
+        </Box>
+      </ComponentCard>
+    </div>
+  );
+};
+
+// ============= WEB PLAYER =============
+
+const WebPlayerDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>Web Player</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Sandbox component for rendering HTML/CSS/JS with console output.</Text>
+    
+    <ComponentCard
+      title="Basic Web Player"
+      description="Render HTML, CSS, and JavaScript"
+      code={`import { WebPlayer } from '@indokudev/indoui'
+
+<WebPlayer
+  html="<h1>Hello World</h1><p>Welcome!</p>"
+  css="h1 { color: blue; } p { color: gray; }"
+  js="console.log('Page loaded!');"
+/>`}
+    >
+      <Box w="full">
+        <WebPlayer
+          html={`<div class="container">
+  <h1>Hello World!</h1>
+  <p>This is a live preview.</p>
+  <button onclick="handleClick()">Click me</button>
+</div>`}
+          css={`
+.container { padding: 20px; font-family: system-ui; }
+h1 { color: #3b82f6; margin-bottom: 10px; }
+p { color: #6b7280; margin-bottom: 15px; }
+button { 
+  background: #3b82f6; 
+  color: white; 
+  border: none; 
+  padding: 8px 16px; 
+  border-radius: 6px; 
+  cursor: pointer;
+}
+button:hover { background: #2563eb; }`}
+          js={`function handleClick() {
+  console.log('Button clicked!');
+  alert('Hello from WebPlayer!');
+}`}
+          showConsole
+          h="350px"
+        />
+      </Box>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="With Console"
+      description="View console output from the sandbox"
+      code={`<WebPlayer
+  html="<button onclick='test()'>Log</button>"
+  js="function test() { console.log('Clicked!'); }"
+  showConsole
+  consoleHeight={120}
+/>`}
+    >
+      <Box w="full">
+        <WebPlayer
+          html={`<div style="padding: 20px; font-family: system-ui;">
+  <h2>Console Demo</h2>
+  <button onclick="logInfo()">Log Info</button>
+  <button onclick="logWarn()">Log Warning</button>
+  <button onclick="logError()">Log Error</button>
+</div>`}
+          css={`button { margin: 5px; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; }
+button:nth-child(2) { background: #3b82f6; color: white; }
+button:nth-child(3) { background: #f59e0b; color: white; }
+button:nth-child(4) { background: #ef4444; color: white; }`}
+          js={`function logInfo() { console.log('This is an info message'); }
+function logWarn() { console.warn('This is a warning'); }
+function logError() { console.error('This is an error'); }
+console.log('WebPlayer loaded!');`}
+          showConsole
+          consoleHeight={100}
+          h="320px"
+        />
+      </Box>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Using srcDoc"
+      description="Pass complete HTML document"
+      code={`<WebPlayer
+  srcDoc={\`<!DOCTYPE html>
+<html>
+  <head>
+    <style>body { background: #f0f0f0; }</style>
+  </head>
+  <body>
+    <h1>Complete Document</h1>
+  </body>
+</html>\`}
+/>`}
+    >
+      <Box w="full">
+        <WebPlayer
+          srcDoc={`<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { 
+      margin: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 150px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: system-ui;
+    }
+    .card {
+      background: white;
+      padding: 20px 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h1 { margin: 0; color: #1a1a2e; }
+    p { margin: 8px 0 0; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✨ Beautiful Card</h1>
+    <p>Built with WebPlayer</p>
+  </div>
+</body>
+</html>`}
+          h="250px"
+        />
+      </Box>
+    </ComponentCard>
+  </div>
+);
+
 // ============= COMPONENT MAPPING =============
 
 const componentDocs: Record<string, React.FC> = {
@@ -2615,10 +3112,14 @@ const componentDocs: Record<string, React.FC> = {
   emptystate: EmptyStateDocs,
   modal: ModalDocs,
   drawer: DrawerDocs,
+  menu: MenuDocs,
+  toast: ToastDocs,
   tabs: TabsDocs,
   accordion: AccordionDocs,
   breadcrumb: BreadcrumbDocs,
   steps: StepsDocs,
+  codeeditor: CodeEditorDocs,
+  webplayer: WebPlayerDocs,
 };
 
 // ============= MAIN DOCS PAGE =============
