@@ -189,6 +189,14 @@ const sidebarItems = [
     items: [
       { id: 'modal', label: 'Modal' },
       { id: 'drawer', label: 'Drawer' },
+      { id: 'menu', label: 'Menu' },
+    ],
+  },
+  {
+    category: 'Advanced',
+    items: [
+      { id: 'codeeditor', label: 'Code Editor' },
+      { id: 'webplayer', label: 'Web Player' },
     ],
   },
   {

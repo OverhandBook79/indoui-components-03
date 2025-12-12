@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
 import { cn } from '@/lib/utils';
 import { SizeKey } from '../../theme/tokens';
+import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
 import { Copy, Check } from 'lucide-react';
 
 export type Language =
@@ -20,11 +21,8 @@ export type Language =
   | 'sql'
   | 'graphql';
 
-export interface SyntaxHighlighterProps {
+export interface SyntaxHighlighterProps extends LayoutProps {
   children?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  editable?: boolean;
   language?: Language;
   showLineNumbers?: boolean;
   showCopyButton?: boolean;
@@ -45,9 +43,6 @@ const sizeClasses: Record<SizeKey, string> = {
 
 export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   children,
-  value,
-  onChange,
-  editable = false,
   language = 'typescript',
   showLineNumbers = true,
   showCopyButton = true,
@@ -55,13 +50,13 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   size = 'sm',
   filename,
   className,
+  ...layoutProps
 }) => {
   const [copied, setCopied] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const preRef = useRef<HTMLPreElement>(null);
   
-  const code = (value ?? children ?? '').trim();
+  const code = (children ?? '').trim();
   const prismTheme = theme === 'dark' ? themes.vsDark : themes.vsLight;
+  const layoutClasses = getLayoutClasses(layoutProps);
   
   const copyCode = async () => {
     try {
@@ -72,39 +67,13 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
       console.error('Failed to copy:', err);
     }
   };
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange?.(e.target.value);
-  }, [onChange]);
-
-  const syncScroll = useCallback(() => {
-    if (textareaRef.current && preRef.current) {
-      preRef.current.scrollTop = textareaRef.current.scrollTop;
-      preRef.current.scrollLeft = textareaRef.current.scrollLeft;
-    }
-  }, []);
-
-  // Handle tab key for indentation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const textarea = e.currentTarget;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const newValue = code.substring(0, start) + '  ' + code.substring(end);
-      onChange?.(newValue);
-      // Set cursor position after tab
-      setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + 2;
-      }, 0);
-    }
-  }, [code, onChange]);
   
   return (
     <div
       className={cn(
         'rounded-lg overflow-hidden border border-border',
         theme === 'dark' ? 'bg-[#1e1e1e]' : 'bg-[#ffffff]',
+        layoutClasses,
         className
       )}
     >
@@ -145,70 +114,48 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
       )}
       
       {/* Code block */}
-      <div className="relative">
-        <Highlight theme={prismTheme} code={code} language={language}>
-          {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
-            <pre
-              ref={preRef}
-              className={cn(
-                highlightClassName,
-                'overflow-auto p-4 m-0 font-mono',
-                sizeClasses[size],
-                editable && 'pointer-events-none'
-              )}
-              style={{ ...style, margin: 0, background: 'transparent' }}
-            >
-              {tokens.map((line, i) => {
-                const lineProps = getLineProps({ line, key: i });
-                return (
-                  <div key={i} {...lineProps} className={cn(lineProps.className, 'table-row')}>
-                    {showLineNumbers && (
-                      <span 
-                        className={cn(
-                          'table-cell pr-4 select-none text-right',
-                          theme === 'dark' ? 'text-[#858585]' : 'text-[#999999]'
-                        )}
-                      >
-                        {i + 1}
-                      </span>
-                    )}
-                    <span className="table-cell">
-                      {line.map((token, key) => {
-                        const tokenProps = getTokenProps({ token, key });
-                        return <span key={key} {...tokenProps} />;
-                      })}
-                    </span>
-                  </div>
-                );
-              })}
-            </pre>
-          )}
-        </Highlight>
-        
-        {/* Editable textarea overlay */}
-        {editable && (
-          <textarea
-            ref={textareaRef}
-            value={code}
-            onChange={handleChange}
-            onScroll={syncScroll}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
+      <Highlight theme={prismTheme} code={code} language={language}>
+        {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
+          <pre
             className={cn(
-              'absolute inset-0 w-full h-full p-4 font-mono bg-transparent text-transparent caret-white resize-none outline-none',
-              sizeClasses[size],
-              showLineNumbers && 'pl-12'
+              highlightClassName,
+              'overflow-auto p-4 m-0 font-mono',
+              sizeClasses[size]
             )}
-            style={{ caretColor: theme === 'dark' ? '#fff' : '#000' }}
-          />
+            style={{ ...style, margin: 0, background: 'transparent' }}
+          >
+            {tokens.map((line, i) => {
+              const lineProps = getLineProps({ line, key: i });
+              return (
+                <div key={i} {...lineProps} className={cn(lineProps.className, 'table-row')}>
+                  {showLineNumbers && (
+                    <span 
+                      className={cn(
+                        'table-cell pr-4 select-none text-right',
+                        theme === 'dark' ? 'text-[#858585]' : 'text-[#999999]'
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                  )}
+                  <span className="table-cell">
+                    {line.map((token, key) => {
+                      const tokenProps = getTokenProps({ token, key });
+                      return <span key={key} {...tokenProps} />;
+                    })}
+                  </span>
+                </div>
+              );
+            })}
+          </pre>
         )}
-      </div>
+      </Highlight>
     </div>
   );
 };
 
 // Simple code block without syntax highlighting (for inline use)
-export interface CodeBlockProps {
+export interface CodeBlockProps extends LayoutProps {
   children: string;
   size?: SizeKey;
   className?: string;
@@ -218,12 +165,16 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   children,
   size = 'sm',
   className,
+  ...layoutProps
 }) => {
+  const layoutClasses = getLayoutClasses(layoutProps);
+  
   return (
     <pre
       className={cn(
         'bg-muted rounded-lg p-4 overflow-x-auto font-mono',
         sizeClasses[size],
+        layoutClasses,
         className
       )}
     >

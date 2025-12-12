@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Play, Copy, Check, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as IndoUI from '@/indoui';
-import { SyntaxHighlighter } from '@/indoui/components/data-display/SyntaxHighlighter';
+import { CodeEditor } from '@/indoui/components/data-display/CodeEditor';
 
 const defaultCode = `// Try editing this code! Press Ctrl+R to run
 // All IndoUI components are available
@@ -291,23 +291,18 @@ const Playground: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-4rem)]">
-        {/* Code Editor with Syntax Highlighting */}
-        <div className="w-1/2 border-r border-border flex flex-col">
-          <div className="p-3 border-b border-border bg-muted/30">
-            <span className="text-sm font-medium text-muted-foreground">Code Editor</span>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <SyntaxHighlighter
-              value={code}
-              onChange={setCode}
-              editable
-              language="tsx"
-              theme="dark"
-              showLineNumbers
-              showCopyButton={false}
-              className="h-full rounded-none border-0"
-            />
-          </div>
+        {/* Code Editor */}
+        <div className="w-1/2 border-r border-border flex flex-col overflow-hidden">
+          <CodeEditor
+            value={code}
+            onChange={setCode}
+            language="tsx"
+            filename="playground.tsx"
+            theme="dark"
+            showLineNumbers
+            h="full"
+            className="rounded-none border-0 flex-1"
+          />
         </div>
 
         {/* Preview */}
