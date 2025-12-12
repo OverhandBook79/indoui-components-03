@@ -81,6 +81,9 @@ export { List, ListItem } from './components/data-display/List';
 export { QRCode } from './components/data-display/QRCode';
 export { SyntaxHighlighter, CodeBlock } from './components/data-display/SyntaxHighlighter';
 export type { Language } from './components/data-display/SyntaxHighlighter';
+export { CodeEditor } from './components/data-display/CodeEditor';
+export type { CodeEditorLanguage, CodeEditorFile } from './components/data-display/CodeEditor';
+export { WebPlayer } from './components/data-display/WebPlayer';
 
 // Overlay
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './components/overlay/Modal';
