@@ -3378,7 +3378,7 @@ const Docs: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Search Modal */}
       <SearchModal 
         isOpen={searchModalOpen} 
@@ -3392,8 +3392,8 @@ const Docs: React.FC = () => {
         <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-[100]">
+      {/* Header - Fixed at top */}
+      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl z-[100] flex-shrink-0">
         <Container maxW="7xl">
           <Flex justify="between" align="center" className="h-16">
             <HStack gap={4}>
@@ -3454,17 +3454,19 @@ const Docs: React.FC = () => {
         </Container>
       </header>
 
-      <Container maxW="7xl">
-        <div className="flex">
-          {/* Sidebar */}
-          <aside
-            className={`
-              fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 
-              bg-background/95 backdrop-blur-sm border-r border-border/50 overflow-y-auto
-              transition-transform duration-300 z-40
-              ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            `}
-          >
+      {/* Content wrapper - takes remaining height */}
+      <div className="flex-1 flex overflow-hidden">
+        <Container maxW="7xl" className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden">
+            {/* Sidebar - Fixed, scrollable independently */}
+            <aside
+              className={`
+                fixed lg:relative lg:flex-shrink-0 top-16 lg:top-0 left-0 h-[calc(100vh-4rem)] lg:h-full w-64 
+                bg-background/95 backdrop-blur-sm border-r border-border/50 overflow-y-auto
+                transition-transform duration-300 z-40
+                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              `}
+            >
             <nav className="p-4 space-y-6">
               {sidebarItems.map((section, sectionIndex) => (
                 <div key={section.category} className="animate-fade-in" style={{ animationDelay: `${sectionIndex * 50}ms` }}>
@@ -3502,24 +3504,27 @@ const Docs: React.FC = () => {
             />
           )}
 
-          {/* Main content - All sections rendered */}
-          <main className="flex-1 min-w-0 py-8 px-4 lg:px-8">
-            <div className="max-w-4xl space-y-16">
-              {Object.entries(componentDocs).map(([id, Component]) => (
-                <section
-                  key={id}
-                  id={id}
-                  ref={(el) => { if (el) sectionRefs.current[id] = el; }}
-                  className="scroll-mt-20 animate-fade-in"
-                >
-                  <Component />
-                  <Divider className="mt-12 opacity-30" />
-                </section>
-              ))}
-            </div>
-          </main>
-        </div>
-      </Container>
+            {/* Main content - Scrollable area */}
+            <main className="flex-1 min-w-0 overflow-y-auto">
+              <div className="py-8 px-4 lg:px-8">
+                <div className="max-w-4xl space-y-16">
+                  {Object.entries(componentDocs).map(([id, Component]) => (
+                    <section
+                      key={id}
+                      id={id}
+                      ref={(el) => { if (el) sectionRefs.current[id] = el; }}
+                      className="scroll-mt-8 animate-fade-in"
+                    >
+                      <Component />
+                      <Divider className="mt-12 opacity-30" />
+                    </section>
+                  ))}
+                </div>
+              </div>
+            </main>
+          </div>
+        </Container>
+      </div>
     </div>
   );
 };
