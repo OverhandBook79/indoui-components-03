@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, X, FileText, ArrowRight, Code, Video, MessageSquare, Download, Layout, Image } from 'lucide-react';
+import { Search, X, FileText, ArrowRight, Code, Download, Layout, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchItem {
@@ -91,7 +91,6 @@ const searchItems: SearchItem[] = [
   // Advanced
   { id: 'codeeditor', label: 'Code Editor', category: 'Advanced', path: '/docs#codeeditor', icon: <Code className="h-4 w-4" /> },
   { id: 'webplayer', label: 'Web Player', category: 'Advanced', path: '/docs#webplayer' },
-  { id: 'videocall', label: 'Video Call', category: 'Advanced', path: '/docs#videocall', icon: <Video className="h-4 w-4" /> },
   // Pages
   { id: 'playground', label: 'Playground', category: 'Pages', path: '/playground' },
   { id: 'docs', label: 'Documentation', category: 'Pages', path: '/docs' },

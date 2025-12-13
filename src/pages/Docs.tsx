@@ -15,7 +15,6 @@ import {
   Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter, Toast, ToastContainer,
   CodeEditor, WebPlayer, DownloadTrigger,
   AspectImage, AspectVideo, AspectIframe,
-  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, useLocalMedia,
   useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
 import { Menu as MenuComponent, ContextMenu, MenuDivider } from '@/indoui/components/overlay/Menu';
@@ -93,48 +92,6 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ title, description, code,
         )}
       </div>
     </div>
-  );
-};
-
-// Live Video Demo for docs
-const LiveVideoDemo = () => {
-  const { localStream, isVideoEnabled, isMicEnabled, startMedia, stopMedia, toggleVideo, toggleMic } = useLocalMedia();
-  const [isStarted, setIsStarted] = useState(false);
-
-  const handleStart = async () => {
-    await startMedia();
-    setIsStarted(true);
-  };
-
-  const handleEnd = () => {
-    stopMedia();
-    setIsStarted(false);
-  };
-
-  if (!isStarted) {
-    return (
-      <Box className="p-8 border border-border rounded-lg bg-muted/30 text-center">
-        <Text className="text-muted-foreground mb-4">Click to start camera preview</Text>
-        <Button onClick={handleStart}>Start Camera</Button>
-      </Box>
-    );
-  }
-
-  return (
-    <Box w="full">
-      <SimpleVideoCall
-        localStream={localStream}
-        isVideoEnabled={isVideoEnabled}
-        isMicEnabled={isMicEnabled}
-        onToggleVideo={toggleVideo}
-        onToggleMic={toggleMic}
-        onEndCall={handleEnd}
-        h="300px"
-      />
-      <Text size="xs" className="text-muted-foreground mt-2 text-center">
-        Test room code: TEST-123-DEMO (Share this to connect with others)
-      </Text>
-    </Box>
   );
 };
 
@@ -247,7 +204,6 @@ const sidebarItems = [
     items: [
       { id: 'codeeditor', label: 'Code Editor' },
       { id: 'webplayer', label: 'Web Player' },
-      { id: 'videocall', label: 'Video Call' },
     ],
   },
   {
@@ -3261,62 +3217,6 @@ const AspectRatioDocs = () => (
   </div>
 );
 
-// ============= VIDEO CALL =============
-
-const VideoCallDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">
-      <GradientText>Video Call</GradientText>
-    </Heading>
-    <Text className="text-muted-foreground mb-8">Components for simple video calling with room codes in XXX-XXX-XXX format.</Text>
-    
-    <ComponentCard
-      title="Simple Video Call"
-      description="Live video call with your camera - test code: TEST-123-DEMO"
-      code={`import { SimpleVideoCall, useLocalMedia } from '@indokudev/indoui'
-
-const { localStream, startMedia, toggleVideo, toggleMic } = useLocalMedia();
-
-<SimpleVideoCall 
-  localStream={localStream}
-  onToggleVideo={toggleVideo}
-  onToggleMic={toggleMic}
-/>`}
-    >
-      <LiveVideoDemo />
-    </ComponentCard>
-    
-    <ComponentCard
-      title="Room Code Display"
-      description="Display shareable room code"
-      code={`import { RoomCodeDisplay } from '@indokudev/indoui'
-
-<RoomCodeDisplay 
-  code="ABC-123-XYZ" 
-  onCopy={() => toast.success('Copied!')}
-/>`}
-    >
-      <RoomCodeDisplay code="TES-123-COD" />
-    </ComponentCard>
-    
-    <ComponentCard
-      title="Join Room Form"
-      description="Input for joining a room by code (format: XXX-NNN-XXX)"
-      code={`import { JoinRoomForm } from '@indokudev/indoui'
-
-// Room code format: XXX-NNN-XXX
-// X = letter, N = number
-// Example: TES-123-COD
-
-<JoinRoomForm 
-  onJoin={(code) => console.log('Joining:', code)}
-/>`}
-    >
-      <JoinRoomForm onJoin={(code) => alert(`Joining room: ${code}`)} />
-    </ComponentCard>
-  </div>
-);
-
 
 // ============= COMPONENT MAPPING =============
 
@@ -3389,7 +3289,6 @@ const componentDocs: Record<string, React.FC> = {
   webplayer: WebPlayerDocs,
   downloadtrigger: DownloadTriggerDocs,
   aspectratio: AspectRatioDocs,
-  videocall: VideoCallDocs,
 };
 
 // ============= MAIN DOCS PAGE =============
