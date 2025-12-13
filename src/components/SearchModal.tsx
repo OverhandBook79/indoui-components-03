@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, X, FileText, ArrowRight, Code, Video, MessageSquare, Download, Layout } from 'lucide-react';
+import { Search, X, FileText, ArrowRight, Code, Video, MessageSquare, Download, Layout, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchItem {
@@ -68,10 +68,10 @@ const searchItems: SearchItem[] = [
   { id: 'timeline', label: 'Timeline', category: 'Data Display', path: '/docs#timeline' },
   { id: 'carousel', label: 'Carousel', category: 'Data Display', path: '/docs#carousel' },
   { id: 'image', label: 'Image', category: 'Data Display', path: '/docs#image' },
+  { id: 'aspectratio', label: 'Aspect Ratio', category: 'Data Display', path: '/docs#aspectratio', icon: <Image className="h-4 w-4" /> },
   { id: 'pagination', label: 'Pagination', category: 'Data Display', path: '/docs#pagination' },
   { id: 'texteditor', label: 'Text Editor', category: 'Data Display', path: '/docs#texteditor' },
   { id: 'filetree', label: 'File Tree', category: 'Data Display', path: '/docs#filetree' },
-  { id: 'aspectratio', label: 'Aspect Ratio', category: 'Data Display', path: '/docs#aspectratio' },
   // Feedback
   { id: 'alert', label: 'Alert', category: 'Feedback', path: '/docs#alert' },
   { id: 'toast', label: 'Toast', category: 'Feedback', path: '/docs#toast' },
@@ -140,7 +140,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, initi
     if (item.path.includes('#')) {
       const [path, hash] = item.path.split('#');
       if (location.pathname === path || (path === '/docs' && location.pathname === '/docs')) {
-        // Same page, just scroll
         const element = document.getElementById(hash);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
