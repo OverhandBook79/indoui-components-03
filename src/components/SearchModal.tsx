@@ -92,7 +92,6 @@ const searchItems: SearchItem[] = [
   { id: 'codeeditor', label: 'Code Editor', category: 'Advanced', path: '/docs#codeeditor', icon: <Code className="h-4 w-4" /> },
   { id: 'webplayer', label: 'Web Player', category: 'Advanced', path: '/docs#webplayer' },
   { id: 'videocall', label: 'Video Call', category: 'Advanced', path: '/docs#videocall', icon: <Video className="h-4 w-4" /> },
-  { id: 'chatroom', label: 'Chat Room', category: 'Advanced', path: '/docs#chatroom', icon: <MessageSquare className="h-4 w-4" /> },
   // Pages
   { id: 'playground', label: 'Playground', category: 'Pages', path: '/playground' },
   { id: 'docs', label: 'Documentation', category: 'Pages', path: '/docs' },

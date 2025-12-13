@@ -37,23 +37,6 @@ export interface SimpleVideoCallProps extends LayoutProps {
   className?: string;
 }
 
-export interface ChatRoomProps extends LayoutProps {
-  roomCode?: string;
-  username?: string;
-  messages?: ChatMessage[];
-  onSendMessage?: (message: string) => void;
-  currentUserId?: string;
-  theme?: 'dark' | 'light';
-  className?: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  userId: string;
-  userName: string;
-  message: string;
-  timestamp: Date;
-}
 
 // Simple Video Call UI Component (without WebRTC logic - that would need a signaling server)
 export const SimpleVideoCall: React.FC<SimpleVideoCallProps> = ({
@@ -308,127 +291,6 @@ export const JoinRoomForm: React.FC<{
   );
 };
 
-// Simple Chat Component
-export const ChatRoom: React.FC<ChatRoomProps> = ({
-  roomCode,
-  messages = [],
-  onSendMessage,
-  currentUserId = 'me',
-  theme = 'dark',
-  className,
-  ...layoutProps
-}) => {
-  const [inputValue, setInputValue] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const layoutClasses = getLayoutClasses(layoutProps);
-
-  useEffect(() => {
-    // Only scroll if there are messages (avoid scroll on mount)
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [messages]);
-
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      onSendMessage?.(inputValue.trim());
-      setInputValue('');
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  return (
-    <div 
-      className={cn(
-        'flex flex-col rounded-xl overflow-hidden border border-border',
-        theme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-white',
-        layoutClasses,
-        className
-      )}
-      style={{ minHeight: '400px' }}
-    >
-      {/* Header */}
-      {roomCode && (
-        <div className={cn(
-          'px-4 py-3 border-b',
-          theme === 'dark' ? 'bg-[#252525] border-[#333]' : 'bg-gray-50 border-gray-200'
-        )}>
-          <RoomCodeDisplay code={roomCode} />
-        </div>
-      )}
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={cn(
-              'flex flex-col',
-              msg.userId === currentUserId ? 'items-end' : 'items-start'
-            )}
-          >
-            <span className="text-xs text-muted-foreground mb-1">
-              {msg.userName}
-            </span>
-            <div
-              className={cn(
-                'max-w-[80%] px-4 py-2 rounded-2xl',
-                msg.userId === currentUserId
-                  ? 'bg-primary text-primary-foreground rounded-br-md'
-                  : theme === 'dark' 
-                    ? 'bg-[#333] text-white rounded-bl-md' 
-                    : 'bg-gray-100 text-gray-900 rounded-bl-md'
-              )}
-            >
-              <p className="text-sm">{msg.message}</p>
-            </div>
-            <span className="text-[10px] text-muted-foreground mt-1">
-              {msg.timestamp.toLocaleTimeString()}
-            </span>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className={cn(
-        'p-4 border-t',
-        theme === 'dark' ? 'border-[#333]' : 'border-gray-200'
-      )}>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-            className={cn(
-              'flex-1 px-4 py-2 rounded-full border border-border bg-background',
-              'focus:outline-none focus:ring-2 focus:ring-primary'
-            )}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
-            className={cn(
-              'px-6 py-2 rounded-full font-medium transition-colors',
-              'bg-primary text-primary-foreground hover:bg-primary/90',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
-            )}
-          >
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Hook for using local media
 export function useLocalMedia() {
@@ -564,5 +426,4 @@ export const VideoCall: React.FC<VideoCallProps> = ({
 SimpleVideoCall.displayName = 'SimpleVideoCall';
 RoomCodeDisplay.displayName = 'RoomCodeDisplay';
 JoinRoomForm.displayName = 'JoinRoomForm';
-ChatRoom.displayName = 'ChatRoom';
 VideoCall.displayName = 'VideoCall';

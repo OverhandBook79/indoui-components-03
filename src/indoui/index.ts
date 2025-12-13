@@ -85,7 +85,7 @@ export { CodeEditor } from './components/data-display/CodeEditor';
 export type { CodeEditorLanguage, CodeEditorFile } from './components/data-display/CodeEditor';
 export { WebPlayer } from './components/data-display/WebPlayer';
 export { AspectRatio, AspectImage, AspectVideo, AspectIframe } from './components/data-display/AspectRatio';
-export { VideoCall, SimpleVideoCall, ChatRoom, JoinRoomForm, RoomCodeDisplay, useLocalMedia } from './components/data-display/VideoCall';
+export { VideoCall, SimpleVideoCall, JoinRoomForm, RoomCodeDisplay, useLocalMedia } from './components/data-display/VideoCall';
 
 // Overlay
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './components/overlay/Modal';
