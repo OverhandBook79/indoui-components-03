@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
 import { cn } from '@/lib/utils';
 import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
-import { ChevronDown, X, Circle, Minus, Square, File, Folder } from 'lucide-react';
+import { ChevronDown, X, Circle, Minus, Square, File, Folder, Search, Replace, ChevronUp, ChevronRight } from 'lucide-react';
 
 export type CodeEditorLanguage =
   | 'javascript'
@@ -38,6 +38,7 @@ export interface CodeEditorProps extends LayoutProps {
   theme?: 'dark' | 'light';
   showLineNumbers?: boolean;
   showMinimap?: boolean;
+  showToolbar?: boolean;
   readOnly?: boolean;
   className?: string;
   tabSize?: number;

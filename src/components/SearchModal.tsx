@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, X, FileText, ArrowRight } from 'lucide-react';
+import { Search, X, FileText, ArrowRight, Code, Video, MessageSquare, Download, Layout } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchItem {
@@ -8,9 +8,10 @@ interface SearchItem {
   label: string;
   category: string;
   path: string;
+  icon?: React.ReactNode;
 }
 
-// All searchable items
+// All searchable items - includes ALL components from drawer
 const searchItems: SearchItem[] = [
   // Getting Started
   { id: 'installation', label: 'Installation', category: 'Getting Started', path: '/docs#installation' },
@@ -22,7 +23,7 @@ const searchItems: SearchItem[] = [
   { id: 'usebreakpointvalue', label: 'useBreakpointValue', category: 'Hooks', path: '/docs#usebreakpointvalue' },
   { id: 'usethemetoken', label: 'useThemeToken', category: 'Hooks', path: '/docs#usethemetoken' },
   // Layout
-  { id: 'box', label: 'Box', category: 'Layout', path: '/docs#box' },
+  { id: 'box', label: 'Box', category: 'Layout', path: '/docs#box', icon: <Layout className="h-4 w-4" /> },
   { id: 'flex', label: 'Flex', category: 'Layout', path: '/docs#flex' },
   { id: 'stack', label: 'Stack', category: 'Layout', path: '/docs#stack' },
   { id: 'grid', label: 'Grid', category: 'Layout', path: '/docs#grid' },
@@ -51,6 +52,7 @@ const searchItems: SearchItem[] = [
   { id: 'colorpicker', label: 'Color Picker', category: 'Forms', path: '/docs#colorpicker' },
   { id: 'datepicker', label: 'Date Picker', category: 'Forms', path: '/docs#datepicker' },
   { id: 'segmentedcontrol', label: 'Segmented Control', category: 'Forms', path: '/docs#segmentedcontrol' },
+  { id: 'downloadtrigger', label: 'Download Trigger', category: 'Forms', path: '/docs#downloadtrigger', icon: <Download className="h-4 w-4" /> },
   // Data Display
   { id: 'avatar', label: 'Avatar', category: 'Data Display', path: '/docs#avatar' },
   { id: 'badge', label: 'Badge', category: 'Data Display', path: '/docs#badge' },
@@ -69,8 +71,10 @@ const searchItems: SearchItem[] = [
   { id: 'pagination', label: 'Pagination', category: 'Data Display', path: '/docs#pagination' },
   { id: 'texteditor', label: 'Text Editor', category: 'Data Display', path: '/docs#texteditor' },
   { id: 'filetree', label: 'File Tree', category: 'Data Display', path: '/docs#filetree' },
+  { id: 'aspectratio', label: 'Aspect Ratio', category: 'Data Display', path: '/docs#aspectratio' },
   // Feedback
   { id: 'alert', label: 'Alert', category: 'Feedback', path: '/docs#alert' },
+  { id: 'toast', label: 'Toast', category: 'Feedback', path: '/docs#toast' },
   { id: 'progress', label: 'Progress', category: 'Feedback', path: '/docs#progress' },
   { id: 'skeleton', label: 'Skeleton', category: 'Feedback', path: '/docs#skeleton' },
   { id: 'spinner', label: 'Spinner', category: 'Feedback', path: '/docs#spinner' },
@@ -78,11 +82,17 @@ const searchItems: SearchItem[] = [
   // Overlay
   { id: 'modal', label: 'Modal', category: 'Overlay', path: '/docs#modal' },
   { id: 'drawer', label: 'Drawer', category: 'Overlay', path: '/docs#drawer' },
+  { id: 'menu', label: 'Menu', category: 'Overlay', path: '/docs#menu' },
   // Navigation
   { id: 'tabs', label: 'Tabs', category: 'Navigation', path: '/docs#tabs' },
   { id: 'accordion', label: 'Accordion', category: 'Navigation', path: '/docs#accordion' },
   { id: 'breadcrumb', label: 'Breadcrumb', category: 'Navigation', path: '/docs#breadcrumb' },
   { id: 'steps', label: 'Steps', category: 'Navigation', path: '/docs#steps' },
+  // Advanced
+  { id: 'codeeditor', label: 'Code Editor', category: 'Advanced', path: '/docs#codeeditor', icon: <Code className="h-4 w-4" /> },
+  { id: 'webplayer', label: 'Web Player', category: 'Advanced', path: '/docs#webplayer' },
+  { id: 'videocall', label: 'Video Call', category: 'Advanced', path: '/docs#videocall', icon: <Video className="h-4 w-4" /> },
+  { id: 'chatroom', label: 'Chat Room', category: 'Advanced', path: '/docs#chatroom', icon: <MessageSquare className="h-4 w-4" /> },
   // Pages
   { id: 'playground', label: 'Playground', category: 'Pages', path: '/playground' },
   { id: 'docs', label: 'Documentation', category: 'Pages', path: '/docs' },
@@ -103,7 +113,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, initi
   const location = useLocation();
 
   const filteredItems = useMemo(() => {
-    if (!query.trim()) return searchItems.slice(0, 10);
+    if (!query.trim()) return searchItems.slice(0, 12);
     const lowerQuery = query.toLowerCase();
     return searchItems.filter(
       item => 
@@ -208,7 +218,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, initi
                     : 'hover:bg-muted'
                 )}
               >
-                <FileText className="h-4 w-4 flex-shrink-0" />
+                {item.icon || <FileText className="h-4 w-4 flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{item.label}</div>
                   <div className={cn(

@@ -54,12 +54,12 @@ export { IconButton } from './components/forms/IconButton';
 export { DownloadTrigger } from './components/forms/DownloadTrigger';
 
 // Feedback
-export { Alert } from './components/feedback/Alert';
+export { Alert, usePromiseAlert } from './components/feedback/Alert';
 export { Badge } from './components/feedback/Badge';
 export { Progress } from './components/feedback/Progress';
 export { Skeleton, SkeletonText, SkeletonCircle } from './components/feedback/Skeleton';
 export { Tooltip } from './components/feedback/Tooltip';
-export { Toast, ToastContainer } from './components/feedback/Toast';
+export { Toast, ToastContainer, Toaster, toastManager, useToastManager } from './components/feedback/Toast';
 export { Spinner } from './components/feedback/Spinner';
 export { EmptyState } from './components/feedback/EmptyState';
 
@@ -84,6 +84,8 @@ export type { Language } from './components/data-display/SyntaxHighlighter';
 export { CodeEditor } from './components/data-display/CodeEditor';
 export type { CodeEditorLanguage, CodeEditorFile } from './components/data-display/CodeEditor';
 export { WebPlayer } from './components/data-display/WebPlayer';
+export { AspectRatio, AspectImage, AspectVideo, AspectIframe } from './components/data-display/AspectRatio';
+export { VideoCall, SimpleVideoCall, ChatRoom, JoinRoomForm, RoomCodeDisplay, useLocalMedia } from './components/data-display/VideoCall';
 
 // Overlay
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './components/overlay/Modal';
