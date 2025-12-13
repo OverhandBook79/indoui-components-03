@@ -15,7 +15,7 @@ import {
   Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter, Toast, ToastContainer,
   CodeEditor, WebPlayer, DownloadTrigger,
   AspectImage, AspectVideo, AspectIframe,
-  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, ChatRoom,
+  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, ChatRoom, useLocalMedia,
   useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
 import { Menu as MenuComponent, ContextMenu, MenuDivider } from '@/indoui/components/overlay/Menu';
@@ -95,6 +95,49 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ title, description, code,
     </div>
   );
 };
+
+// Live Video Demo for docs
+const LiveVideoDemo = () => {
+  const { localStream, isVideoEnabled, isMicEnabled, startMedia, stopMedia, toggleVideo, toggleMic } = useLocalMedia();
+  const [isStarted, setIsStarted] = useState(false);
+
+  const handleStart = async () => {
+    await startMedia();
+    setIsStarted(true);
+  };
+
+  const handleEnd = () => {
+    stopMedia();
+    setIsStarted(false);
+  };
+
+  if (!isStarted) {
+    return (
+      <Box className="p-8 border border-border rounded-lg bg-muted/30 text-center">
+        <Text className="text-muted-foreground mb-4">Click to start camera preview</Text>
+        <Button onClick={handleStart}>Start Camera</Button>
+      </Box>
+    );
+  }
+
+  return (
+    <Box w="full">
+      <SimpleVideoCall
+        localStream={localStream}
+        isVideoEnabled={isVideoEnabled}
+        isMicEnabled={isMicEnabled}
+        onToggleVideo={toggleVideo}
+        onToggleMic={toggleMic}
+        onEndCall={handleEnd}
+        h="300px"
+      />
+      <Text size="xs" className="text-muted-foreground mt-2 text-center">
+        Test room code: TEST-123-DEMO (Share this to connect with others)
+      </Text>
+    </Box>
+  );
+};
+
 // Sidebar items with ALL components
 const sidebarItems = [
   {
@@ -3132,7 +3175,7 @@ const AspectRatioDocs = () => (
       <AspectImage 
         src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" 
         alt="Mountain landscape" 
-        ratio="16:9"
+        ratio={16/9}
         w="300px"
         objectFit="cover"
         rounded="lg"
@@ -3150,7 +3193,7 @@ const AspectRatioDocs = () => (
     >
       <AspectVideo 
         src="https://www.w3schools.com/html/mov_bbb.mp4"
-        ratio="16:9"
+        ratio={16/9}
         controls
         w="300px"
         rounded="lg"
@@ -3168,7 +3211,7 @@ const AspectRatioDocs = () => (
     >
       <AspectIframe 
         src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-        ratio="16:9"
+        ratio={16/9}
         title="YouTube Video"
         w="300px"
         rounded="lg"
@@ -3177,18 +3220,18 @@ const AspectRatioDocs = () => (
     
     <ComponentCard
       title="Different Ratios"
-      description="Common aspect ratio options"
-      code={`<AspectImage ratio="1:1" />   // Square
-<AspectImage ratio="4:3" />   // Standard
-<AspectImage ratio="16:9" />  // Widescreen
-<AspectImage ratio="21:9" />  // Ultrawide`}
+      description="Use any numeric ratio (width/height)"
+      code={`<AspectImage ratio={1} />     // Square (1:1)
+<AspectImage ratio={4/3} />   // Standard
+<AspectImage ratio={16/9} />  // Widescreen
+<AspectImage ratio={9/16} />  // Portrait`}
     >
       <HStack gap={4} className="flex-wrap">
         <VStack gap={1}>
           <AspectImage 
             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
             alt="1:1" 
-            ratio="1:1"
+            ratio={1}
             w="80px"
             rounded="md"
           />
@@ -3198,7 +3241,7 @@ const AspectRatioDocs = () => (
           <AspectImage 
             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
             alt="4:3" 
-            ratio="4:3"
+            ratio={4/3}
             w="100px"
             rounded="md"
           />
@@ -3208,7 +3251,7 @@ const AspectRatioDocs = () => (
           <AspectImage 
             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
             alt="16:9" 
-            ratio="16:9"
+            ratio={16/9}
             w="120px"
             rounded="md"
           />
@@ -3230,20 +3273,18 @@ const VideoCallDocs = () => (
     
     <ComponentCard
       title="Simple Video Call"
-      description="Complete video call UI"
-      code={`import { SimpleVideoCall } from '@indokudev/indoui'
+      description="Live video call with your camera - test code: TEST-123-DEMO"
+      code={`import { SimpleVideoCall, useLocalMedia } from '@indokudev/indoui'
+
+const { localStream, startMedia, toggleVideo, toggleMic } = useLocalMedia();
 
 <SimpleVideoCall 
-  roomCode="ABC-123-XYZ"
-  onLeave={() => console.log('Left room')}
+  localStream={localStream}
+  onToggleVideo={toggleVideo}
+  onToggleMic={toggleMic}
 />`}
     >
-      <Box className="p-4 border border-border rounded-lg bg-muted/30">
-        <Text className="text-muted-foreground text-sm">
-          Video call component requires camera/mic permissions. 
-          See playground for live demo.
-        </Text>
-      </Box>
+      <LiveVideoDemo />
     </ComponentCard>
     
     <ComponentCard

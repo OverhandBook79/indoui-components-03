@@ -2,11 +2,13 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
 
-export type AspectRatioValue = '1:1' | '4:3' | '16:9' | '21:9' | '3:2' | '2:3' | '9:16' | number;
+// Ratio is width/height, e.g., 16/9 = 1.777... for landscape, 9/16 = 0.5625 for portrait
+export type AspectRatioValue = number;
 
 export type RoundedValue = 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
 export interface AspectRatioProps extends LayoutProps {
+  /** Ratio as width/height. E.g., 16/9 for landscape, 9/16 for portrait, 1 for square */
   ratio?: AspectRatioValue;
   children: React.ReactNode;
   rounded?: RoundedValue;
@@ -16,6 +18,7 @@ export interface AspectRatioProps extends LayoutProps {
 export interface AspectImageProps extends LayoutProps {
   src: string;
   alt: string;
+  /** Ratio as width/height. E.g., 16/9 for landscape, 9/16 for portrait */
   ratio?: AspectRatioValue;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   objectPosition?: string;
@@ -28,6 +31,7 @@ export interface AspectImageProps extends LayoutProps {
 
 export interface AspectVideoProps extends LayoutProps {
   src: string;
+  /** Ratio as width/height. E.g., 16/9 for landscape, 9/16 for portrait */
   ratio?: AspectRatioValue;
   autoPlay?: boolean;
   muted?: boolean;
@@ -44,6 +48,7 @@ export interface AspectVideoProps extends LayoutProps {
 
 export interface AspectIframeProps extends LayoutProps {
   src: string;
+  /** Ratio as width/height. E.g., 16/9 for landscape, 9/16 for portrait */
   ratio?: AspectRatioValue;
   title?: string;
   allow?: string;
@@ -53,20 +58,6 @@ export interface AspectIframeProps extends LayoutProps {
   rounded?: RoundedValue;
   className?: string;
 }
-
-const getRatioValue = (ratio: AspectRatioValue): number => {
-  if (typeof ratio === 'number') return ratio;
-  const ratios: Record<string, number> = {
-    '1:1': 1,
-    '4:3': 4 / 3,
-    '16:9': 16 / 9,
-    '21:9': 21 / 9,
-    '3:2': 3 / 2,
-    '2:3': 2 / 3,
-    '9:16': 9 / 16,
-  };
-  return ratios[ratio] || 16 / 9;
-};
 
 const getRoundedClass = (rounded?: RoundedValue): string => {
   const roundedClasses: Record<RoundedValue, string> = {
@@ -82,15 +73,15 @@ const getRoundedClass = (rounded?: RoundedValue): string => {
 };
 
 export const AspectRatio: React.FC<AspectRatioProps> = ({
-  ratio = '16:9',
+  ratio = 16/9,
   children,
   rounded,
   className,
   ...layoutProps
 }) => {
   const layoutClasses = getLayoutClasses(layoutProps);
-  const ratioValue = getRatioValue(ratio);
-  const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  // ratio = width/height, so paddingBottom = (height/width) * 100% = (1/ratio) * 100%
+  const paddingBottom = `${(1 / ratio) * 100}%`;
   const roundedClass = getRoundedClass(rounded);
 
   return (
@@ -108,7 +99,7 @@ export const AspectRatio: React.FC<AspectRatioProps> = ({
 export const AspectImage: React.FC<AspectImageProps> = ({
   src,
   alt,
-  ratio = '16:9',
+  ratio = 16/9,
   objectFit = 'cover',
   objectPosition = 'center',
   fallbackSrc,
@@ -121,8 +112,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
   const [imgSrc, setImgSrc] = React.useState(src);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const layoutClasses = getLayoutClasses(layoutProps);
-  const ratioValue = getRatioValue(ratio);
-  const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const paddingBottom = `${(1 / ratio) * 100}%`;
   const roundedClass = getRoundedClass(rounded);
 
   const handleError = () => {
@@ -168,7 +158,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
 
 export const AspectVideo: React.FC<AspectVideoProps> = ({
   src,
-  ratio = '16:9',
+  ratio = 16/9,
   autoPlay = false,
   muted = false,
   loop = false,
@@ -183,8 +173,7 @@ export const AspectVideo: React.FC<AspectVideoProps> = ({
   ...layoutProps
 }) => {
   const layoutClasses = getLayoutClasses(layoutProps);
-  const ratioValue = getRatioValue(ratio);
-  const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const paddingBottom = `${(1 / ratio) * 100}%`;
   const roundedClass = getRoundedClass(rounded);
 
   return (
@@ -211,7 +200,7 @@ export const AspectVideo: React.FC<AspectVideoProps> = ({
 
 export const AspectIframe: React.FC<AspectIframeProps> = ({
   src,
-  ratio = '16:9',
+  ratio = 16/9,
   title = 'Embedded content',
   allow,
   allowFullScreen = true,
@@ -222,8 +211,7 @@ export const AspectIframe: React.FC<AspectIframeProps> = ({
   ...layoutProps
 }) => {
   const layoutClasses = getLayoutClasses(layoutProps);
-  const ratioValue = getRatioValue(ratio);
-  const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const paddingBottom = `${(1 / ratio) * 100}%`;
   const roundedClass = getRoundedClass(rounded);
 
   return (
