@@ -78,7 +78,7 @@ const Landing: React.FC = () => {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="min-h-screen bg-background overflow-hidden">
       {/* Search Modal */}
       <SearchModal 
         isOpen={searchOpen} 
@@ -93,8 +93,8 @@ const Landing: React.FC = () => {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* Header - Fixed at top */}
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl z-[100] flex-shrink-0">
+      {/* Header */}
+      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-[100]">
         <Container maxW="6xl">
           <Flex justify="between" align="center" className="h-16">
             <HStack gap={2} className="animate-fade-in">
@@ -134,10 +134,8 @@ const Landing: React.FC = () => {
         </Container>
       </header>
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Hero */}
-        <section className="py-20 md:py-32 relative">
+      {/* Hero */}
+      <section className="py-20 md:py-32 relative">
         <Container maxW="4xl" centerContent>
           <Badge variant="subtle" size="lg" className="mb-6 animate-fade-in bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">
             <Sparkles className="h-3 w-3 mr-1 animate-pulse" />
@@ -348,7 +346,6 @@ function App() {
           </Flex>
         </Container>
       </footer>
-      </div>
     </div>
   );
 };
