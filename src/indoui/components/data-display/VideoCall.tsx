@@ -6,12 +6,22 @@ import {
   Monitor, Copy, Check, Users, Settings, Maximize2
 } from 'lucide-react';
 
-// Generate room code like XXX-XXX-XXX
+// Generate room code like XXX-NNN-XXX (X=letter, N=number)
 const generateRoomCode = (): string => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const segment = () => Array(3).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
-  return `${segment()}-${segment()}-${segment()}`;
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const letterSegment = () => Array(3).fill(0).map(() => letters[Math.floor(Math.random() * letters.length)]).join('');
+  const numberSegment = () => Array(3).fill(0).map(() => numbers[Math.floor(Math.random() * numbers.length)]).join('');
+  return `${letterSegment()}-${numberSegment()}-${letterSegment()}`;
 };
+
+// Validate room code format XXX-NNN-XXX
+const isValidRoomCode = (code: string): boolean => {
+  return /^[A-Z]{3}-[0-9]{3}-[A-Z]{3}$/.test(code);
+};
+
+// Test room code for demo
+const TEST_ROOM_CODE = 'TES-123-COD';
 
 export interface VideoCallProps extends LayoutProps {
   roomCode?: string;
@@ -217,9 +227,13 @@ export const JoinRoomForm: React.FC<{
   const formatCode = (value: string) => {
     // Remove non-alphanumeric characters and uppercase
     const clean = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    // Add dashes every 3 characters
-    const parts = clean.match(/.{1,3}/g) || [];
-    return parts.slice(0, 3).join('-');
+    // Format as XXX-NNN-XXX
+    let result = '';
+    for (let i = 0; i < Math.min(clean.length, 9); i++) {
+      if (i === 3 || i === 6) result += '-';
+      result += clean[i];
+    }
+    return result;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,7 +246,7 @@ export const JoinRoomForm: React.FC<{
   };
 
   const handleJoin = () => {
-    if (code.length === 11) { // XXX-XXX-XXX = 11 characters
+    if (isValidRoomCode(code)) {
       onJoin(code);
     }
   };
@@ -251,7 +265,7 @@ export const JoinRoomForm: React.FC<{
           type="text"
           value={code}
           onChange={handleInputChange}
-          placeholder="XXX-XXX-XXX"
+          placeholder="ABC-123-XYZ"
           maxLength={11}
           className={cn(
             'flex-1 px-4 py-3 rounded-lg border border-border bg-background',
@@ -261,7 +275,7 @@ export const JoinRoomForm: React.FC<{
         />
         <button
           onClick={handleJoin}
-          disabled={code.length !== 11}
+          disabled={!isValidRoomCode(code)}
           className={cn(
             'px-6 py-3 rounded-lg font-medium transition-colors',
             'bg-primary text-primary-foreground hover:bg-primary/90',
