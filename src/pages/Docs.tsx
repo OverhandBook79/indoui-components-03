@@ -3296,13 +3296,17 @@ const { localStream, startMedia, toggleVideo, toggleMic } = useLocalMedia();
   onCopy={() => toast.success('Copied!')}
 />`}
     >
-      <RoomCodeDisplay code="ABC-123-XYZ" />
+      <RoomCodeDisplay code="TES-123-COD" />
     </ComponentCard>
     
     <ComponentCard
       title="Join Room Form"
-      description="Input for joining a room by code"
+      description="Input for joining a room by code (format: XXX-NNN-XXX)"
       code={`import { JoinRoomForm } from '@indokudev/indoui'
+
+// Room code format: XXX-NNN-XXX
+// X = letter, N = number
+// Example: TES-123-COD
 
 <JoinRoomForm 
   onJoin={(code) => console.log('Joining:', code)}
