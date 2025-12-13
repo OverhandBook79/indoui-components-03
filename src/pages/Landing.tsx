@@ -94,7 +94,7 @@ const Landing: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
+      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-[100]">
         <Container maxW="6xl">
           <Flex justify="between" align="center" className="h-16">
             <HStack gap={2} className="animate-fade-in">

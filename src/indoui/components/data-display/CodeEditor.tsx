@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
 import { cn } from '@/lib/utils';
 import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
-import { ChevronDown, X, Circle, Minus, Square, File, Folder, Search, Replace, ChevronUp, ChevronRight } from 'lucide-react';
+import { ChevronDown, X, Search, Replace, ChevronUp, ChevronRight } from 'lucide-react';
 
 export type CodeEditorLanguage =
   | 'javascript'
@@ -74,6 +74,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   theme = 'dark',
   showLineNumbers = true,
   showMinimap = false,
+  showToolbar = true,
   readOnly = false,
   className,
   tabSize = 2,
@@ -85,6 +86,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
+  const [matchCount, setMatchCount] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState(0);
   
   const prismTheme = theme === 'dark' ? themes.vsDark : themes.vsLight;
   const layoutClasses = getLayoutClasses(layoutProps);
@@ -177,9 +183,50 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   
   const currentLanguage = files?.find(f => f.name === currentFile)?.language || language;
   const currentCode = files?.find(f => f.name === currentFile)?.content || code;
+
+  // Search functionality
+  useEffect(() => {
+    if (searchText) {
+      const regex = new RegExp(searchText, 'gi');
+      const matches = currentCode.match(regex);
+      setMatchCount(matches ? matches.length : 0);
+      setCurrentMatch(matches && matches.length > 0 ? 1 : 0);
+    } else {
+      setMatchCount(0);
+      setCurrentMatch(0);
+    }
+  }, [searchText, currentCode]);
+
+  const handleReplace = () => {
+    if (!searchText || readOnly) return;
+    const regex = new RegExp(searchText, 'i');
+    const newCode = currentCode.replace(regex, replaceText);
+    setCode(newCode);
+    onChange?.(newCode);
+  };
+
+  const handleReplaceAll = () => {
+    if (!searchText || readOnly) return;
+    const regex = new RegExp(searchText, 'gi');
+    const newCode = currentCode.replace(regex, replaceText);
+    setCode(newCode);
+    onChange?.(newCode);
+  };
+
+  // Ctrl+F to open search
+  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      setShowSearchBar(true);
+    }
+    if (e.key === 'Escape') {
+      setShowSearchBar(false);
+    }
+  }, []);
   
   return (
     <div
+      onKeyDown={handleEditorKeyDown}
       className={cn(
         'flex flex-col rounded-lg overflow-hidden border border-border',
         theme === 'dark' ? 'bg-[#1e1e1e]' : 'bg-[#ffffff]',
@@ -209,6 +256,81 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         <div className="w-16" />
       </div>
       
+      {/* Search/Replace Toolbar */}
+      {showToolbar && showSearchBar && (
+        <div className={cn(
+          'flex flex-col gap-2 px-3 py-2 border-b',
+          theme === 'dark' ? 'bg-[#252526] border-[#3c3c3c]' : 'bg-[#f3f3f3] border-[#e7e7e7]'
+        )}>
+          <div className="flex items-center gap-2">
+            <Search className={cn('w-4 h-4', theme === 'dark' ? 'text-[#8b8b8b]' : 'text-[#6b6b6b]')} />
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search..."
+              className={cn(
+                'flex-1 px-2 py-1 text-xs rounded border outline-none',
+                theme === 'dark' 
+                  ? 'bg-[#3c3c3c] border-[#555] text-white placeholder:text-[#8b8b8b]' 
+                  : 'bg-white border-[#ddd] text-black placeholder:text-[#999]'
+              )}
+            />
+            <span className={cn('text-xs', theme === 'dark' ? 'text-[#8b8b8b]' : 'text-[#6b6b6b]')}>
+              {matchCount > 0 ? `${currentMatch} of ${matchCount}` : 'No results'}
+            </span>
+            <button
+              onClick={() => setShowSearchBar(false)}
+              className={cn(
+                'p-1 rounded hover:bg-opacity-20',
+                theme === 'dark' ? 'text-[#8b8b8b] hover:bg-white' : 'text-[#6b6b6b] hover:bg-black'
+              )}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {!readOnly && (
+            <div className="flex items-center gap-2">
+              <Replace className={cn('w-4 h-4', theme === 'dark' ? 'text-[#8b8b8b]' : 'text-[#6b6b6b]')} />
+              <input
+                type="text"
+                value={replaceText}
+                onChange={(e) => setReplaceText(e.target.value)}
+                placeholder="Replace..."
+                className={cn(
+                  'flex-1 px-2 py-1 text-xs rounded border outline-none',
+                  theme === 'dark' 
+                    ? 'bg-[#3c3c3c] border-[#555] text-white placeholder:text-[#8b8b8b]' 
+                    : 'bg-white border-[#ddd] text-black placeholder:text-[#999]'
+                )}
+              />
+              <button
+                onClick={handleReplace}
+                className={cn(
+                  'px-2 py-1 text-xs rounded',
+                  theme === 'dark' 
+                    ? 'bg-[#0e639c] text-white hover:bg-[#1177bb]' 
+                    : 'bg-[#007acc] text-white hover:bg-[#0062a3]'
+                )}
+              >
+                Replace
+              </button>
+              <button
+                onClick={handleReplaceAll}
+                className={cn(
+                  'px-2 py-1 text-xs rounded',
+                  theme === 'dark' 
+                    ? 'bg-[#0e639c] text-white hover:bg-[#1177bb]' 
+                    : 'bg-[#007acc] text-white hover:bg-[#0062a3]'
+                )}
+              >
+                Replace All
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tabs */}
       {files && files.length > 1 && (
         <div className={cn(

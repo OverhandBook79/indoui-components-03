@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Link as LinkIcon, Type, ChevronDown } from 'lucide-react';
+import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
 
 export type TextEditorSize = 'sm' | 'md' | 'lg';
 
-export interface TextEditorProps {
+export interface TextEditorProps extends LayoutProps {
   value?: string;
   defaultValue?: string;
   onChange?: (html: string) => void;
@@ -57,7 +58,9 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   disabled = false,
   readOnly = false,
   className,
+  ...layoutProps
 }) => {
+  const layoutClasses = getLayoutClasses(layoutProps);
   const editorRef = useRef<HTMLDivElement>(null);
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
@@ -142,6 +145,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
     <div className={cn(
       "border border-border rounded-lg overflow-hidden bg-card",
       disabled && "opacity-50 pointer-events-none",
+      layoutClasses,
       className
     )}>
       {/* Toolbar */}

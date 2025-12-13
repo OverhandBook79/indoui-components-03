@@ -13,7 +13,9 @@ import {
   QRCode, SyntaxHighlighter, Spinner, EmptyState, PasswordInput, SegmentedControl, IconButton,
   Pagination, Timeline, Carousel, Image, List, ListItem, Breadcrumb, Steps, Clipboard, ClipboardButton,
   Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter, Toast, ToastContainer,
-  CodeEditor, WebPlayer,
+  CodeEditor, WebPlayer, DownloadTrigger,
+  AspectImage, AspectVideo, AspectIframe,
+  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, ChatRoom,
   useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
 import { Menu as MenuComponent, ContextMenu, MenuDivider } from '@/indoui/components/overlay/Menu';
@@ -152,6 +154,7 @@ const sidebarItems = [
       { id: 'colorpicker', label: 'Color Picker' },
       { id: 'datepicker', label: 'Date Picker' },
       { id: 'segmentedcontrol', label: 'Segmented Control' },
+      { id: 'downloadtrigger', label: 'Download Trigger' },
     ],
   },
   {
@@ -171,6 +174,7 @@ const sidebarItems = [
       { id: 'timeline', label: 'Timeline' },
       { id: 'carousel', label: 'Carousel' },
       { id: 'image', label: 'Image' },
+      { id: 'aspectratio', label: 'Aspect Ratio' },
       { id: 'pagination', label: 'Pagination' },
       { id: 'texteditor', label: 'Text Editor' },
       { id: 'filetree', label: 'File Tree' },
@@ -200,6 +204,8 @@ const sidebarItems = [
     items: [
       { id: 'codeeditor', label: 'Code Editor' },
       { id: 'webplayer', label: 'Web Player' },
+      { id: 'videocall', label: 'Video Call' },
+      { id: 'chatroom', label: 'Chat Room' },
     ],
   },
   {
@@ -3051,6 +3057,268 @@ console.log('WebPlayer loaded!');`}
   </div>
 );
 
+// ============= DOWNLOAD TRIGGER =============
+
+const DownloadTriggerDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>Download Trigger</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">A component that triggers file downloads from URLs with customizable UI.</Text>
+    
+    <ComponentCard
+      title="Basic Download"
+      description="Simple download button"
+      code={`import { DownloadTrigger } from '@indokudev/indoui'
+
+<DownloadTrigger 
+  url="/files/document.pdf" 
+  filename="document.pdf" 
+/>`}
+    >
+      <DownloadTrigger url="https://example.com/file.txt" filename="example.txt" />
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Custom Trigger"
+      description="Use any element as download trigger"
+      code={`<DownloadTrigger url="/file.pdf" filename="download.pdf">
+  <Button variant="outline" leftIcon={<Download />}>
+    Download PDF
+  </Button>
+</DownloadTrigger>`}
+    >
+      <DownloadTrigger url="https://example.com/file.txt" filename="example.txt">
+        <Button variant="outline" leftIcon={<Download className="h-4 w-4" />}>
+          Custom Download Button
+        </Button>
+      </DownloadTrigger>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Disabled State"
+      description="Prevent downloads with disabled prop"
+      code={`<DownloadTrigger 
+  url="/file.pdf" 
+  disabled 
+/>`}
+    >
+      <DownloadTrigger url="https://example.com/file.txt" disabled />
+    </ComponentCard>
+  </div>
+);
+
+// ============= ASPECT RATIO =============
+
+const AspectRatioDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>Aspect Ratio</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Components for displaying images, videos, and iframes with consistent aspect ratios.</Text>
+    
+    <ComponentCard
+      title="Aspect Image"
+      description="Image with aspect ratio control"
+      code={`import { AspectImage } from '@indokudev/indoui'
+
+<AspectImage 
+  src="/image.jpg" 
+  alt="Description" 
+  ratio="16:9" 
+  w="300px"
+/>`}
+    >
+      <AspectImage 
+        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" 
+        alt="Mountain landscape" 
+        ratio="16:9"
+        w="300px"
+        objectFit="cover"
+        rounded="lg"
+      />
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Aspect Video"
+      description="Embedded video with aspect ratio"
+      code={`<AspectVideo 
+  src="https://example.com/video.mp4" 
+  ratio="16:9"
+  controls
+/>`}
+    >
+      <AspectVideo 
+        src="https://www.w3schools.com/html/mov_bbb.mp4"
+        ratio="16:9"
+        controls
+        w="300px"
+        rounded="lg"
+      />
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Aspect Iframe"
+      description="Embedded iframe with aspect ratio"
+      code={`<AspectIframe 
+  src="https://example.com" 
+  ratio="4:3"
+  title="Embedded content"
+/>`}
+    >
+      <AspectIframe 
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        ratio="16:9"
+        title="YouTube Video"
+        w="300px"
+        rounded="lg"
+      />
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Different Ratios"
+      description="Common aspect ratio options"
+      code={`<AspectImage ratio="1:1" />   // Square
+<AspectImage ratio="4:3" />   // Standard
+<AspectImage ratio="16:9" />  // Widescreen
+<AspectImage ratio="21:9" />  // Ultrawide`}
+    >
+      <HStack gap={4} className="flex-wrap">
+        <VStack gap={1}>
+          <AspectImage 
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
+            alt="1:1" 
+            ratio="1:1"
+            w="80px"
+            rounded="md"
+          />
+          <Text size="xs">1:1</Text>
+        </VStack>
+        <VStack gap={1}>
+          <AspectImage 
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
+            alt="4:3" 
+            ratio="4:3"
+            w="100px"
+            rounded="md"
+          />
+          <Text size="xs">4:3</Text>
+        </VStack>
+        <VStack gap={1}>
+          <AspectImage 
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100" 
+            alt="16:9" 
+            ratio="16:9"
+            w="120px"
+            rounded="md"
+          />
+          <Text size="xs">16:9</Text>
+        </VStack>
+      </HStack>
+    </ComponentCard>
+  </div>
+);
+
+// ============= VIDEO CALL =============
+
+const VideoCallDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>Video Call</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Components for simple video calling with room codes in XXX-XXX-XXX format.</Text>
+    
+    <ComponentCard
+      title="Simple Video Call"
+      description="Complete video call UI"
+      code={`import { SimpleVideoCall } from '@indokudev/indoui'
+
+<SimpleVideoCall 
+  roomCode="ABC-123-XYZ"
+  onLeave={() => console.log('Left room')}
+/>`}
+    >
+      <Box className="p-4 border border-border rounded-lg bg-muted/30">
+        <Text className="text-muted-foreground text-sm">
+          Video call component requires camera/mic permissions. 
+          See playground for live demo.
+        </Text>
+      </Box>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Room Code Display"
+      description="Display shareable room code"
+      code={`import { RoomCodeDisplay } from '@indokudev/indoui'
+
+<RoomCodeDisplay 
+  code="ABC-123-XYZ" 
+  onCopy={() => toast.success('Copied!')}
+/>`}
+    >
+      <RoomCodeDisplay code="ABC-123-XYZ" />
+    </ComponentCard>
+    
+    <ComponentCard
+      title="Join Room Form"
+      description="Input for joining a room by code"
+      code={`import { JoinRoomForm } from '@indokudev/indoui'
+
+<JoinRoomForm 
+  onJoin={(code) => console.log('Joining:', code)}
+/>`}
+    >
+      <JoinRoomForm onJoin={(code) => alert(`Joining room: ${code}`)} />
+    </ComponentCard>
+  </div>
+);
+
+// ============= CHAT ROOM =============
+
+const ChatRoomDocs = () => (
+  <div>
+    <Heading as="h1" size="3xl" className="mb-4">
+      <GradientText>Chat Room</GradientText>
+    </Heading>
+    <Text className="text-muted-foreground mb-8">Simple chat component for real-time messaging with replies.</Text>
+    
+    <ComponentCard
+      title="Basic Chat Room"
+      description="Complete chat interface"
+      code={`import { ChatRoom } from '@indokudev/indoui'
+
+<ChatRoom 
+  roomCode="ABC-123-XYZ"
+  username="User"
+  h="400px"
+/>`}
+    >
+      <Box w="full">
+        <ChatRoom 
+          roomCode="demo-room"
+          username="Demo User"
+          h="300px"
+        />
+      </Box>
+    </ComponentCard>
+    
+    <ComponentCard
+      title="With Custom Size"
+      description="Adjust chat dimensions"
+      code={`<ChatRoom 
+  roomCode="my-room"
+  username="John"
+  h="500px"
+  w="full"
+/>`}
+    >
+      <Text className="text-muted-foreground text-sm">
+        ChatRoom supports layout props like w, h, minH, maxH for sizing.
+      </Text>
+    </ComponentCard>
+  </div>
+);
+
 // ============= COMPONENT MAPPING =============
 
 const componentDocs: Record<string, React.FC> = {
@@ -3120,6 +3388,10 @@ const componentDocs: Record<string, React.FC> = {
   steps: StepsDocs,
   codeeditor: CodeEditorDocs,
   webplayer: WebPlayerDocs,
+  downloadtrigger: DownloadTriggerDocs,
+  aspectratio: AspectRatioDocs,
+  videocall: VideoCallDocs,
+  chatroom: ChatRoomDocs,
 };
 
 // ============= MAIN DOCS PAGE =============
@@ -3224,7 +3496,7 @@ const Docs: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-50">
+      <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl z-[100]">
         <Container maxW="7xl">
           <Flex justify="between" align="center" className="h-16">
             <HStack gap={4}>
