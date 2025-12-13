@@ -4,9 +4,12 @@ import { LayoutProps, getLayoutClasses } from '../../utils/layoutProps';
 
 export type AspectRatioValue = '1:1' | '4:3' | '16:9' | '21:9' | '3:2' | '2:3' | '9:16' | number;
 
+export type RoundedValue = 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+
 export interface AspectRatioProps extends LayoutProps {
   ratio?: AspectRatioValue;
   children: React.ReactNode;
+  rounded?: RoundedValue;
   className?: string;
 }
 
@@ -17,6 +20,7 @@ export interface AspectImageProps extends LayoutProps {
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   objectPosition?: string;
   fallbackSrc?: string;
+  rounded?: RoundedValue;
   onLoad?: () => void;
   onError?: () => void;
   className?: string;
@@ -31,6 +35,7 @@ export interface AspectVideoProps extends LayoutProps {
   controls?: boolean;
   poster?: string;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  rounded?: RoundedValue;
   onPlay?: () => void;
   onPause?: () => void;
   onEnded?: () => void;
@@ -45,6 +50,7 @@ export interface AspectIframeProps extends LayoutProps {
   allowFullScreen?: boolean;
   sandbox?: string;
   loading?: 'lazy' | 'eager';
+  rounded?: RoundedValue;
   className?: string;
 }
 
@@ -62,19 +68,34 @@ const getRatioValue = (ratio: AspectRatioValue): number => {
   return ratios[ratio] || 16 / 9;
 };
 
+const getRoundedClass = (rounded?: RoundedValue): string => {
+  const roundedClasses: Record<RoundedValue, string> = {
+    'none': 'rounded-none',
+    'sm': 'rounded-sm',
+    'md': 'rounded-md',
+    'lg': 'rounded-lg',
+    'xl': 'rounded-xl',
+    '2xl': 'rounded-2xl',
+    'full': 'rounded-full',
+  };
+  return rounded ? roundedClasses[rounded] : '';
+};
+
 export const AspectRatio: React.FC<AspectRatioProps> = ({
   ratio = '16:9',
   children,
+  rounded,
   className,
   ...layoutProps
 }) => {
   const layoutClasses = getLayoutClasses(layoutProps);
   const ratioValue = getRatioValue(ratio);
   const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const roundedClass = getRoundedClass(rounded);
 
   return (
     <div 
-      className={cn('relative overflow-hidden', layoutClasses, className)}
+      className={cn('relative overflow-hidden', roundedClass, layoutClasses, className)}
       style={{ paddingBottom }}
     >
       <div className="absolute inset-0">
@@ -91,6 +112,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
   objectFit = 'cover',
   objectPosition = 'center',
   fallbackSrc,
+  rounded,
   onLoad,
   onError,
   className,
@@ -101,6 +123,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
   const layoutClasses = getLayoutClasses(layoutProps);
   const ratioValue = getRatioValue(ratio);
   const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const roundedClass = getRoundedClass(rounded);
 
   const handleError = () => {
     if (fallbackSrc && imgSrc !== fallbackSrc) {
@@ -116,7 +139,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
 
   return (
     <div 
-      className={cn('relative overflow-hidden bg-muted', layoutClasses, className)}
+      className={cn('relative overflow-hidden bg-muted', roundedClass, layoutClasses, className)}
       style={{ paddingBottom }}
     >
       <img
@@ -126,6 +149,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
         onError={handleError}
         className={cn(
           'absolute inset-0 w-full h-full transition-opacity duration-300',
+          roundedClass,
           !isLoaded && 'opacity-0',
           isLoaded && 'opacity-100'
         )}
@@ -136,7 +160,7 @@ export const AspectImage: React.FC<AspectImageProps> = ({
         loading="lazy"
       />
       {!isLoaded && (
-        <div className="absolute inset-0 animate-pulse bg-muted" />
+        <div className={cn('absolute inset-0 animate-pulse bg-muted', roundedClass)} />
       )}
     </div>
   );
@@ -151,6 +175,7 @@ export const AspectVideo: React.FC<AspectVideoProps> = ({
   controls = true,
   poster,
   objectFit = 'cover',
+  rounded,
   onPlay,
   onPause,
   onEnded,
@@ -160,10 +185,11 @@ export const AspectVideo: React.FC<AspectVideoProps> = ({
   const layoutClasses = getLayoutClasses(layoutProps);
   const ratioValue = getRatioValue(ratio);
   const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const roundedClass = getRoundedClass(rounded);
 
   return (
     <div 
-      className={cn('relative overflow-hidden bg-black', layoutClasses, className)}
+      className={cn('relative overflow-hidden bg-black', roundedClass, layoutClasses, className)}
       style={{ paddingBottom }}
     >
       <video
@@ -176,7 +202,7 @@ export const AspectVideo: React.FC<AspectVideoProps> = ({
         onPlay={onPlay}
         onPause={onPause}
         onEnded={onEnded}
-        className="absolute inset-0 w-full h-full"
+        className={cn('absolute inset-0 w-full h-full', roundedClass)}
         style={{ objectFit }}
       />
     </div>
@@ -191,16 +217,18 @@ export const AspectIframe: React.FC<AspectIframeProps> = ({
   allowFullScreen = true,
   sandbox,
   loading = 'lazy',
+  rounded,
   className,
   ...layoutProps
 }) => {
   const layoutClasses = getLayoutClasses(layoutProps);
   const ratioValue = getRatioValue(ratio);
   const paddingBottom = `${(1 / ratioValue) * 100}%`;
+  const roundedClass = getRoundedClass(rounded);
 
   return (
     <div 
-      className={cn('relative overflow-hidden bg-muted', layoutClasses, className)}
+      className={cn('relative overflow-hidden bg-muted', roundedClass, layoutClasses, className)}
       style={{ paddingBottom }}
     >
       <iframe
@@ -210,7 +238,7 @@ export const AspectIframe: React.FC<AspectIframeProps> = ({
         allowFullScreen={allowFullScreen}
         sandbox={sandbox}
         loading={loading}
-        className="absolute inset-0 w-full h-full border-0"
+        className={cn('absolute inset-0 w-full h-full border-0', roundedClass)}
       />
     </div>
   );

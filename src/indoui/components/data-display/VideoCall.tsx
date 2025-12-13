@@ -39,6 +39,7 @@ export interface SimpleVideoCallProps extends LayoutProps {
 
 export interface ChatRoomProps extends LayoutProps {
   roomCode?: string;
+  username?: string;
   messages?: ChatMessage[];
   onSendMessage?: (message: string) => void;
   currentUserId?: string;
