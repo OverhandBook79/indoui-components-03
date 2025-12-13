@@ -15,7 +15,7 @@ import {
   Mark, Highlight, Blockquote, Prose, Center, Wrap, Splitter, Toast, ToastContainer,
   CodeEditor, WebPlayer, DownloadTrigger,
   AspectImage, AspectVideo, AspectIframe,
-  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, ChatRoom, useLocalMedia,
+  SimpleVideoCall, RoomCodeDisplay, JoinRoomForm, useLocalMedia,
   useColorMode, useColorModeValue, useBreakpointValue, useThemeToken
 } from '@/indoui';
 import { Menu as MenuComponent, ContextMenu, MenuDivider } from '@/indoui/components/overlay/Menu';
@@ -248,7 +248,6 @@ const sidebarItems = [
       { id: 'codeeditor', label: 'Code Editor' },
       { id: 'webplayer', label: 'Web Player' },
       { id: 'videocall', label: 'Video Call' },
-      { id: 'chatroom', label: 'Chat Room' },
     ],
   },
   {
@@ -3314,51 +3313,6 @@ const { localStream, startMedia, toggleVideo, toggleMic } = useLocalMedia();
   </div>
 );
 
-// ============= CHAT ROOM =============
-
-const ChatRoomDocs = () => (
-  <div>
-    <Heading as="h1" size="3xl" className="mb-4">
-      <GradientText>Chat Room</GradientText>
-    </Heading>
-    <Text className="text-muted-foreground mb-8">Simple chat component for real-time messaging with replies.</Text>
-    
-    <ComponentCard
-      title="Basic Chat Room"
-      description="Complete chat interface"
-      code={`import { ChatRoom } from '@indokudev/indoui'
-
-<ChatRoom 
-  roomCode="ABC-123-XYZ"
-  username="User"
-  h="400px"
-/>`}
-    >
-      <Box w="full">
-        <ChatRoom 
-          roomCode="demo-room"
-          username="Demo User"
-          h="300px"
-        />
-      </Box>
-    </ComponentCard>
-    
-    <ComponentCard
-      title="With Custom Size"
-      description="Adjust chat dimensions"
-      code={`<ChatRoom 
-  roomCode="my-room"
-  username="John"
-  h="500px"
-  w="full"
-/>`}
-    >
-      <Text className="text-muted-foreground text-sm">
-        ChatRoom supports layout props like w, h, minH, maxH for sizing.
-      </Text>
-    </ComponentCard>
-  </div>
-);
 
 // ============= COMPONENT MAPPING =============
 
@@ -3432,7 +3386,6 @@ const componentDocs: Record<string, React.FC> = {
   downloadtrigger: DownloadTriggerDocs,
   aspectratio: AspectRatioDocs,
   videocall: VideoCallDocs,
-  chatroom: ChatRoomDocs,
 };
 
 // ============= MAIN DOCS PAGE =============
