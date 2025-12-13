@@ -323,7 +323,10 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
   const layoutClasses = getLayoutClasses(layoutProps);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Only scroll if there are messages (avoid scroll on mount)
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }, [messages]);
 
   const handleSend = () => {
